@@ -1,0 +1,40 @@
+.sidebar {
+  width: 240px;
+  background: #111;
+  color: white;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: #c40000;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-item {
+  background: transparent;
+  border: none;
+  color: white;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sidebar-item:hover {
+  background: #1f1f1f;
+}
+
+.sidebar-item.active {
+  background: #c40000;
+}
