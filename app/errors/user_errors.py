@@ -16,7 +16,8 @@ class PhoneNumberExists(UserError):
 
 class WrongInfoInput(UserError):
     """Wrong Personal Info input"""
-    def __init__(self,errors):
+
+    def __init__(self, errors):
         self.errors = errors
 
 
@@ -28,5 +29,10 @@ class WrongPersonalInfoValidation(UserError):
 class UserNotFound(UserError):
     """User not found"""
 
+
 class WrongCredentials(UserError):
     """Wrong login or password"""
+
+
+class NoPasswordFound(UserError):
+    """Current user hasn't created unique password yet"""

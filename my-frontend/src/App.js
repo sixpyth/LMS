@@ -3,12 +3,33 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import StudentDashBoard from "./pages/StudentDashBoard";
 import './App.css';
 import ManagerDashboard from "./pages/ManagerDashBoard";
-import ActivateUser from "./pages/CreateUser";
+import CreateUser from "./pages/CreateUser";
 import Login from "./pages/Login";
 import StudentsPage from "./pages/StudentsPage";
 import TeachersPage from "./pages/TeachersPage"
 import SchedulePage from "./pages/SchedulePage";
 import ProfileSettingsPage from "./pages/ProfileSettings";
+import ActivateUser from "./pages/ActivateUser"
+import AudioCourses from "./pages/AudioCourse";
+import CreateTeacher from "./pages/CreateTeacher";
+import { Navigate } from "react-router-dom";
+
+
+const ProtectedRoute = ({ children, role }) => {
+  const userStr = localStorage.getItem("user");
+
+  // if (!userStr) {
+  //   return <Navigate to="/log-in" replace />;
+  // }
+
+  // const user = JSON.parse(userStr);
+
+  // if (user.profile_type !== role) {
+  //   return <Navigate to="/log-in" replace />;
+  // }
+
+  return children;
+};
 
 
 export default function App() {
@@ -33,13 +54,16 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomeContent />} />
         <Route path="/student/settings" element={<ProfileSettingsPage />} />
-        <Route path="/manager" element={<ManagerDashboard />} />
-        <Route path="/manager/students" element={<StudentsPage />} />
-        <Route path="/manager/teachers" element={<TeachersPage />} />
-        <Route path="/manager/add-student" element={<ActivateUser />} />
+        <Route path="/manager" element={<ProtectedRoute role="ADMIN"><ManagerDashboard/></ProtectedRoute>} />
+        <Route path="/manager/students" element={<ProtectedRoute role="ADMIN"><StudentsPage/></ProtectedRoute>} />
+        <Route path="/manager/teachers" element={<ProtectedRoute role="ADMIN"><TeachersPage/></ProtectedRoute>} />
+        <Route path="/manager/add-student" element={<ProtectedRoute role="ADMIN"><CreateUser/></ProtectedRoute>}/>
+        <Route path="/manager/add-teacher" element={<ProtectedRoute role="ADMIN"><CreateTeacher/></ProtectedRoute>}/>
         <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/audio-course" element={<AudioCourses />} />
         <Route path="/log-in" element={<Login />} />
-        <Route path="/student" element={<StudentDashBoard />} />
+        <Route path="/student" element={<ProtectedRoute role="STUDENT"><StudentDashBoard/></ProtectedRoute>}/>
+        <Route path="/activate" element={<ActivateUser />} />
       </Routes>
 
       <footer className="footer">

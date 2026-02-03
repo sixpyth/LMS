@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Union
 
 
-
 class ProfileCreateRequest(BaseModel):
     phone: str
     name: str
@@ -39,7 +38,7 @@ class UserIn(BaseModel):
     surname: str
     avatar_url: str | None = None
     profile_type: str
-    
+
     class Config:
         from_attributes = True
 
@@ -48,5 +47,3 @@ class UserLoginResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserIn
-
-

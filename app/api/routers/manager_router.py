@@ -4,35 +4,39 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.user import User
 from app.crud.crud import get_profiles
 from app.services.manager_service import add_schedule_service
+from enum import Enum
+from enums.profile_type import ProfileType
 
+from app.view.manager_view import fetch_all_students_view, fetch_all_teachers_view
 
-from app.view.user_view import (
-    create_user_view,
-    log_in_user_view
-)
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select
-from app.schemas.user_schemas import (
-    ProfileCreateRequest,
-    ProfileCreateResponse,
-    ProfileCreateErrors,
-
-)
-
-from app.db.models.user import User
 
 
-api_router = APIRouter(prefix='/manager', tags=["Manager"])
+api_router = APIRouter(prefix="/manager", tags=["Manager"])
+
 
 @api_router.get("/manager")
-async def check_role(session:AsyncSession = Depends(get_db),current_user: User = Depends(role_required(["ADMIN"]))):
+async def check_role(
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(role_required(["ADMIN"])),
+):
     result = "ok"
     return await get_profiles(db=session)
 
 
-@api_router.get("/set-schedule")
-async def add_schedule(start, finish, login, format, type, session: AsyncSession = Depends(get_db)):
-    result = await add_schedule_service(session=session,start=start,finish=finish,login=login, format=format, type=type)
+@api_router.post("/set-schedule")
+async def add_schedule(
+    start, finish, login, format, type, session: AsyncSession = Depends(get_db)
+):
+    result = await add_schedule_service(
+        session=session,
+        start=start,
+        finish=finish,
+        login=login,
+        format=format,
+        type=type,
+    )
     return result
 
 
@@ -42,3 +46,15 @@ async def get_user(login, session: AsyncSession = Depends(get_db)):
     result = await session.execute(role)
     user = result.scalar_one_or_none()
     print(user.profile.roles.role)
+
+
+@api_router.get("/get-students")
+async def get_students(profile_type: ProfileType = ProfileType.STUDENT ,session: AsyncSession = Depends(get_db)):
+    result = await fetch_all_students_view(profile_type=profile_type,session=session)
+    return result
+
+
+@api_router.get("/get-teachers")
+async def get_teachers(profile_type: ProfileType = ProfileType.TEACHER,session: AsyncSession = Depends(get_db)):
+    result = await fetch_all_teachers_view(profile_type=profile_type,session=session)
+    return result

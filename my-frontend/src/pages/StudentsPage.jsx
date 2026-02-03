@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
 import styles from "./StudentsPage.module.css";
+import fetch_users from "../api/fetch_users"
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
   const [filter, setFilter] = useState(""); 
 
   useEffect(() => {
+  const fetchStudents = async () => {
+    try {
+      const res = await fetch_users();
+      setStudents(res.profiles);      
+      
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    fetch("/api/teachers") 
-      .then((res) => res.json())
-      .then((data) => setStudents(data))
-      .catch((err) => console.error(err));
-  }, []);
+  fetchStudents();
+}, []);
 
   const filteredStudents = students.filter(
     (s) =>
@@ -40,8 +47,8 @@ const StudentsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredStudents.map((student) => (
-            <tr key={student.id}>
+          {filteredStudents.map((student, index) => (
+            <tr key={index}>
               <td>{student.name}</td>
               <td>{student.surname}</td>
               <td>{student.profile_type}</td>

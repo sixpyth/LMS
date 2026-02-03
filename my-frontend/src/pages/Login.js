@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { loginUser } from "../api/login";
 import styles from "./Login.module.css"; 
 import { useNavigate } from "react-router-dom";
+import { nav } from "framer-motion/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,9 +13,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await loginUser(username, password);
-      setMessage("Вы успешно вошли в аккаунт!");
-      navigate("/student");
+      const user = await loginUser(username, password);
+      if (user.profile_type == "TEACHER") navigate("/manager")
+      else if (user.profile_type == "STUDENT") navigate ("/student")
+    
     } catch (err) {
       setMessage(err.message || "Ошибка при входе");
     }

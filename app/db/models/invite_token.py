@@ -1,13 +1,13 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import UUID, DateTime, ForeignKey, String
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from app.db.models.base import BaseModel
 import uuid
 from utils.auth_generator import expires_at
 
+
 class Token(BaseModel):
     __tablename__ = "tokens"
-
 
     user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -18,10 +18,7 @@ class Token(BaseModel):
     )
 
     token: Mapped[str] = mapped_column(
-        String(45),
-        unique=True,
-        nullable=False,
-        index=True
+        String(45), unique=True, nullable=False, index=True
     )
 
     expires_at: Mapped[DateTime] = mapped_column(
