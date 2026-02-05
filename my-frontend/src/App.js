@@ -12,21 +12,10 @@ import ProfileSettingsPage from "./pages/ProfileSettings";
 import ActivateUser from "./pages/ActivateUser"
 import AudioCourses from "./pages/AudioCourse";
 import CreateTeacher from "./pages/CreateTeacher";
-import { Navigate } from "react-router-dom";
 
 
 const ProtectedRoute = ({ children, role }) => {
   const userStr = localStorage.getItem("user");
-
-  // if (!userStr) {
-  //   return <Navigate to="/log-in" replace />;
-  // }
-
-  // const user = JSON.parse(userStr);
-
-  // if (user.profile_type !== role) {
-  //   return <Navigate to="/log-in" replace />;
-  // }
 
   return children;
 };
@@ -73,10 +62,13 @@ export default function App() {
   );
 }
 
-// Главная страница
+
 function HomeContent() {
   return (
     <div className="home-container">
+       <main className="content">
+    {/* hero, courses, info и т.д. */}
+  </main>
       <section className="hero">
         <div className="hero-text">
           <h1>Курсы, которые реально работают</h1>

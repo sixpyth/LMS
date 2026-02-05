@@ -72,7 +72,7 @@ async def log_in_user_view(data, session: AsyncSession) -> UserLoginResponse:
         )
     except WrongCredentials:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный логин или пароль"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный логин или пароль"
         )
     except NoPasswordFound:
         raise HTTPException(

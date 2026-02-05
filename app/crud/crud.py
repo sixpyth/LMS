@@ -9,6 +9,7 @@ from utils.auth_generator import generate_token
 from sqlalchemy import func
 from enums.profile_type import ProfileType
 
+
 async def create(db: AsyncSession, login: str, profile: ProfileCreateRequest):
     user = User(login=login)
     db.add(user)
@@ -30,12 +31,16 @@ async def get_user(db: AsyncSession, login: str) -> User | None:
     return result.scalar_one_or_none()
 
 
-async def get_profiles(db: AsyncSession, skip: int = 0, limit: int = 10, profile_type: ProfileType | None = None):
-
-    query = (
-            select(Profile.name, Profile.surname, Profile.profile_type, User.status)
-            .join(User)
-        )
+async def get_profiles(
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 5,
+    profile_type: ProfileType | None = None,
+):
+    """Returns all users with the chosen profile type"""
+    query = select(
+        Profile.name, Profile.surname, Profile.profile_type, User.status
+    ).join(User)
 
     if profile_type:
         query = query.where(Profile.profile_type == profile_type)
@@ -46,10 +51,8 @@ async def get_profiles(db: AsyncSession, skip: int = 0, limit: int = 10, profile
 
     count_query = select(func.count(User.id))
     if profile_type:
-        count_query = (
-            count_query
-            .join(Profile)
-            .where(Profile.profile_type == profile_type)
+        count_query = count_query.join(Profile).where(
+            Profile.profile_type == profile_type
         )
 
     total = (await db.execute(count_query)).scalar()
@@ -68,7 +71,6 @@ async def get_profiles(db: AsyncSession, skip: int = 0, limit: int = 10, profile
         "count": total,
         "profiles": profiles,
     }
-             
 
 
 async def update(db: AsyncSession, login: int, user_data):

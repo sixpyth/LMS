@@ -3,6 +3,8 @@
   background: white;
   color: black;
   min-height: 100vh;
+  /* display: grid; */
+  grid-template-rows: auto 1fr auto;
 }
 
 .header {
@@ -103,5 +105,5 @@
   background: black;
   color: white;
   text-align: center;
-  padding: 2rem;
+  padding: 1.7rem;
 }

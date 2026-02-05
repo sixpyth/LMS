@@ -3,7 +3,6 @@ from app.core.constants.constants import MIN_NUMBER, MAX_NUMBER
 import string
 
 letters = string.ascii_letters
-print(letters)
 
 
 def validate_info(name: str, surname: str, phone: str) -> bool:
