@@ -1,12 +1,8 @@
 from datetime import datetime, timedelta
-from app.core.constants.constants import (
-    ALGORITHM,
-    ACCESS_TOKEN_EXPIRE_MINUTES
-)
+from app.core.constants.constants import ALGORITHM
 import jwt
 
 SECRET_KEY = "supersecretkey"
-
 
 
 def generate_jwt_token(data: dict, expires_delta: timedelta | None = None):
@@ -17,4 +13,3 @@ def generate_jwt_token(data: dict, expires_delta: timedelta | None = None):
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-

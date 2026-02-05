@@ -14,10 +14,10 @@ export async function activateUser(token, email, password, login) {
 }
 
 
-export const loginUser = async (emailOrLogin, password) => {
-  const res = await axios.post("/api/v1/users/login", {
-    emailOrLogin,
-    password,
-  });
-  return res.data;
-};
+// export const loginUser = async (emailOrLogin, password) => {
+//   const res = await axios.post("/api/v1/users/login", {
+//     emailOrLogin,
+//     password,
+//   });
+//   return res.data;
+// };

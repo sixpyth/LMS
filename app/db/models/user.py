@@ -17,7 +17,9 @@ class User(BaseModel):
 
     email: Mapped[str] = mapped_column(String(32), unique=True, nullable=True)
 
-    profile = relationship("Profile", back_populates="user", uselist=False, lazy="selectin")
+    profile = relationship(
+        "Profile", back_populates="user", uselist=False, lazy="selectin"
+    )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 

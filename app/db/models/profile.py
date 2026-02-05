@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Mapped,mapped_column, relationship
-from sqlalchemy import String, Enum, UUID, ForeignKey, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Enum, UUID, ForeignKey
 from app.db.models.base import BaseModel
 from enums.profile_type import ProfileType
-from datetime import datetime
 import uuid
 
 
@@ -22,7 +21,6 @@ class Profile(BaseModel):
 
     phone: Mapped[str] = mapped_column(String(12), nullable=False, unique=True)
 
-
     user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id"),
@@ -32,10 +30,7 @@ class Profile(BaseModel):
     )
 
     user = relationship("User", back_populates="profile", uselist=False)
-    
+
     profile_type: Mapped[ProfileType] = mapped_column(
-        Enum(ProfileType),
-        nullable=False,
-        unique=False,
-        default="STUDENT"
+        Enum(ProfileType), nullable=False, unique=False, default="STUDENT"
     )

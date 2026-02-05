@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { activateUser } from '../api/auth';
+import { activateUser } from "../api/activate";
 import styles from './ActivateUser.module.css';
 
 const ActivateUser = () => {

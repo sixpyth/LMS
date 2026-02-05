@@ -7,6 +7,7 @@ from app.db.models.invite_token import Token
 from app.schemas.user_schemas import ProfileCreateRequest
 from utils.auth_generator import generate_token
 from sqlalchemy import func
+from enums.profile_type import ProfileType
 
 
 async def create(db: AsyncSession, login: str, profile: ProfileCreateRequest):
@@ -18,30 +19,58 @@ async def create(db: AsyncSession, login: str, profile: ProfileCreateRequest):
     )
     db.add(profile)
     await db.flush()
-    token = Token(token=generate_token(),user_id=user.id)
+    token = Token(token=generate_token(), user_id=user.id)
     db.add(token)
     return user, profile
 
 
 async def get_user(db: AsyncSession, login: str) -> User | None:
-    result = await db.execute(select(User).options(joinedload(User.profile)).where(User.login == login))
+    result = await db.execute(
+        select(User).options(joinedload(User.profile)).where(User.login == login)
+    )
     return result.scalar_one_or_none()
 
 
-async def get_profiles(db: AsyncSession, skip: int = 0, limit: int = 10):
-   
-    info = select(Profile.name, Profile.surname, Profile.profile_type, User.status).offset(skip).limit(limit)
-    result = await db.execute(info)
+async def get_profiles(
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 5,
+    profile_type: ProfileType | None = None,
+):
+    """Returns all users with the chosen profile type"""
+    query = select(
+        Profile.name, Profile.surname, Profile.profile_type, User.status
+    ).join(User)
 
-    user_count = select(func.count(User.id)) 
-    users = await db.execute(user_count)
-    count = users.scalar() 
+    if profile_type:
+        query = query.where(Profile.profile_type == profile_type)
 
-    profiles = f"User number: {count}",[
-        {"name": row.name, "surname": row.surname, "profile_type": row.profile_type,"status":row.status}
+    query = query.offset(skip).limit(limit)
+
+    result = await db.execute(query)
+
+    count_query = select(func.count(User.id))
+    if profile_type:
+        count_query = count_query.join(Profile).where(
+            Profile.profile_type == profile_type
+        )
+
+    total = (await db.execute(count_query)).scalar()
+
+    profiles = [
+        {
+            "name": row.name,
+            "surname": row.surname,
+            "profile_type": row.profile_type,
+            "status": row.status,
+        }
         for row in result.all()
     ]
-    return profiles
+
+    return {
+        "count": total,
+        "profiles": profiles,
+    }
 
 
 async def update(db: AsyncSession, login: int, user_data):

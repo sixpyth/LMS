@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import secrets
 
 
-def login_generator(name: str ,surname: str) -> str:
+def login_generator(name: str, surname: str) -> str:
     if not name or not surname:
         raise ValueError("Name and Surname have to be provided")
     login = f"{name.strip()[0]}.{surname.strip()}".lower()
