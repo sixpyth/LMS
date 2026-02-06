@@ -1,0 +1,33 @@
+.page { min-height:100vh; background:white; color:#111; }
+
+.topbar { position:sticky; top:0; border-bottom:1px solid #eee; padding:16px; }
+
+.container { max-width:980px; margin:auto; }
+
+.brand { display:flex; gap:12px; align-items:center; }
+
+.logo { width:44px;height:44px;border:1px solid #eee;border-radius:16px;display:grid;place-items:center;font-weight:700; }
+
+.title { font-size:18px;font-weight:800; }
+
+.subtitle { color:#666;font-size:13px; }
+
+.content { max-width:980px;margin:auto;padding:24px 16px; }
+
+.search { width:100%; padding:12px; border-radius:16px; border:1px solid #ccc; margin-bottom:20px; }
+
+.grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
+
+.card { border:1px solid #eee; border-radius:22px; padding:16px; box-shadow:0 1px 10px rgba(0,0,0,.05); }
+
+.badge { color:#d40000; font-weight:800; margin-bottom:8px; }
+
+.url { font-size:12px; color:#666; margin-top:8px; }
+
+.actions { display:flex; gap:10px; margin-top:12px; }
+
+.btnMain { background:#e00000;color:white;padding:10px;border-radius:16px;text-decoration:none;font-weight:700; }
+
+.btnGhost { border:1px solid #ccc;background:white;border-radius:16px;padding:10px;font-weight:700; }
+
+.footer { margin-top:28px;text-align:center;color:#777;font-size:12px; }

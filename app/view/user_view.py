@@ -5,7 +5,7 @@ from app.services.user_service import (
     log_in_user_service,
 )
 
-from app.schemas.user_schemas import UserLoginResponse, UserIn
+from app.schemas.user_schemas import UserLoginResponse, UserIn, UserCreateResponse
 from app.errors.user_errors import (
     UserAlreadyExists,
     PhoneNumberExists,
@@ -23,14 +23,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def create_user_view(session: AsyncSession, data):
     try:
-        return await create_user_service(session=session, data=data)
-
+        await create_user_service(session=session, data=data)
+        return UserCreateResponse(message=f"Учитель {data.surname} {data.name} был успешно добавлен!")
+    
     except PhoneNumberExists:
+        
+        logger.error(msg=f"User {data.surname} with {data.phone} wasn't created due to this number already exists")
+        
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Номер уже добавлен"
         )
 
     except UserAlreadyExists:
+
+        logger.error(msg=f"User {data.surname} {data.name} wasn't created due to this user already exists")
+        
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует"
         )
@@ -43,14 +50,19 @@ async def create_user_view(session: AsyncSession, data):
 
 async def create_teacher_view(session: AsyncSession, data):
     try:
-        return await create_teacher_service(session=session, data=data)
-
+    
+        await create_teacher_service(session=session, data=data)
+        return UserCreateResponse(message=f"Учитель {data.surname} {data.name} был успешно добавлен!")
+    
     except PhoneNumberExists:
+        logger.error(msg=f"User {data.surname} with {data.phone} wasn't created due to this number already exists")
+        
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Номер уже добавлен"
         )
 
     except UserAlreadyExists:
+        logger.error(msg=f"User {data.surname} {data.name} wasn't created due to this user already exists")
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Пользователь уже существует"
         )
@@ -62,6 +74,7 @@ async def create_teacher_view(session: AsyncSession, data):
 
 
 async def log_in_user_view(data, session: AsyncSession) -> UserLoginResponse:
+    
     try:
         user, token = await log_in_user_service(data=data, session=session)
         user_in = UserIn.from_orm(user)

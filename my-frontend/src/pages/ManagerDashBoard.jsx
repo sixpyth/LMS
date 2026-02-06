@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import fetch_users from "../api/fetch_users";
 import fetch_teachers from "../api/fetch_teachers";
 import { add_schedule } from "../api/add_schedule";
+import ColorPicker from "../СolorPicker.js"
 
 export default function ManagerDashboard() {
   const [studentNumber, setStudentNumber] = useState(0);
@@ -20,6 +21,7 @@ export default function ManagerDashboard() {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const [color, setColor] = useState("#3174ad");
+  
 
   const fetchStudents = async () => {
     try {
@@ -47,6 +49,7 @@ export default function ManagerDashboard() {
         teacher_login: teacher,
         format,
         type,
+        color,
         // students: students.split(",")
       });
       setShowScheduleModal(false);
@@ -181,12 +184,7 @@ export default function ManagerDashboard() {
                 <option value="OFFLINE">Оффлайн</option>
               </select>
 
-              <label>Цвет занятия</label>
-              <input
-                type="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-              />
+             <ColorPicker color={color} setColor={setColor} />
 
               <div className="modal-actions">
                 <button

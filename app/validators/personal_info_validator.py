@@ -1,8 +1,21 @@
 from app.errors.user_errors import WrongPersonalInfoValidation
 from app.core.constants.constants import MIN_NUMBER, MAX_NUMBER
 import string
+from app.db.models.profile import Profile
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 letters = string.ascii_letters
+
+
+async def is_email_exists(session, email):
+    result = await session.execute(select(Profile).where(Profile.phone == email))
+
+
+async def is_phone_num_exists(session: AsyncSession, phone: str) -> bool:
+        result = await session.execute(select(Profile).where(Profile.phone == phone))
+        phone = result.scalar_one_or_none()
+        return phone is not None
 
 
 def validate_info(name: str, surname: str, phone: str) -> bool:

@@ -87,6 +87,7 @@ async def update(db: AsyncSession, login: int, user_data):
 async def delete(db: AsyncSession, login: int):
     user = await get_user(db, login)
     if not user:
-        return None
+        return "Пользователь не найден"
     await db.delete(user)
+    await db.commit()
     return user
