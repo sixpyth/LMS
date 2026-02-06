@@ -8,62 +8,51 @@ const localizer = dayjsLocalizer(dayjs);
 
 export default function SchedulePage({ role = "student" }) {
   const [events, setEvents] = useState([]);
+  const [color, setColor] = useState("#3174ad");
 
   useEffect(() => {
-  const loadSchedule = async () => {
-    const res = await fetch("http://localhost:8000/api/v1/manager/get-schedule");
-    const data = await res.json();
+    const loadSchedule = async () => {
+      const res = await fetch("http://localhost:8000/api/v1/manager/get-schedule");
+      const data = await res.json();
 
-    const formatted = data.schedule.map((lesson, index) => ({
-      id: index + 1,
-      title: `${lesson.lesson_type} (${lesson.lesson_format})`,
-      start: new Date(lesson.start),
-      end: new Date(lesson.finish),
-    }));
+      const formatted = data.schedule.map((lesson, index) => ({
+        id: index + 1,
+        title: `${lesson.lesson_type} (${lesson.lesson_format})`,
+        start: new Date(lesson.start),
+        end: new Date(lesson.finish),
+        color: setColor,
+      }));
 
-    setEvents(formatted);
-  };
+      setEvents(formatted);
+    };
 
-  loadSchedule();
-}, []);
+    loadSchedule();
+  }, []);
 
   const onSelectSlot = ({ start, end }) => {
-    // if (role !== "manager") return;
-
     const title = prompt("Название занятия");
     if (!title) return;
 
-    setEvents([...events, { id: Date.now(), title, start, end }]);
+    setEvents([
+      ...events,
+      { id: Date.now(), title, start, end, color },
+    ]);
   };
 
   const onSelectEvent = (event) => {
-    // if (role !== "manager") return;
-
     if (window.confirm("Удалить занятие?")) {
       setEvents(events.filter((e) => e.id !== event.id));
     }
   };
 
-  const eventStyleGetter = (event) => {
-  let backgroundColor = "#3174ad"; // стандартный синий
-
-  if (event.title.includes("IELTS")) {
-    backgroundColor = "#e74c3c"; // красный
-  }
-
-  if (event.title.includes("ONLINE")) {
-    backgroundColor = "#27ae60"; // зелёный
-  }
-
-  return {
+  const eventStyleGetter = (event) => ({
     style: {
-      backgroundColor,
+      backgroundColor: event.color || "#3174ad",
       color: "white",
       borderRadius: "6px",
       border: "none",
     },
-  };
-};
+  });
 
   return (
     <div className="schedule-page">

@@ -2,7 +2,7 @@ from app.db.models.base import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import DateTime, Enum
 from enums.lesson import Format, LessonType
-from sqlalchemy import UUID, ForeignKey
+from sqlalchemy import UUID, ForeignKey, String
 from uuid import uuid4
 
 
@@ -24,6 +24,12 @@ class Lesson(BaseModel):
     )
 
     teacher: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.user_id"), unique=False, default=uuid4
+        UUID(as_uuid=True), ForeignKey("profiles.user_id", ondelete="SET NULL"), unique=False, default=uuid4
     )
-    # teacher = relationship("Profile",back_populates="user_id")
+    
+    color: Mapped[str] = mapped_column(
+        String(7),
+        default="#3174ad",
+        nullable=False
+    )
+

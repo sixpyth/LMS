@@ -12,7 +12,8 @@ import ProfileSettingsPage from "./pages/ProfileSettings";
 import ActivateUser from "./pages/ActivateUser"
 import AudioCourses from "./pages/AudioCourse";
 import CreateTeacher from "./pages/CreateTeacher";
-
+import QuizletLinksPage from "./pages/Quizlet";
+import TeacherDashBoard from "./pages/TeachersDashBoard"
 
 const ProtectedRoute = ({ children, role }) => {
   const userStr = localStorage.getItem("user");
@@ -49,10 +50,12 @@ export default function App() {
         <Route path="/manager/add-student" element={<ProtectedRoute role="ADMIN"><CreateUser/></ProtectedRoute>}/>
         <Route path="/manager/add-teacher" element={<ProtectedRoute role="ADMIN"><CreateTeacher/></ProtectedRoute>}/>
         <Route path="/schedule" element={<SchedulePage />} />
-        <Route path="/audio-course" element={<AudioCourses />} />
-        <Route path="/log-in" element={<Login />} />
+        <Route path="/student/audio-course" element={<AudioCourses />} />
+        <Route path="/student/quizlet" element={<QuizletLinksPage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/student" element={<ProtectedRoute role="STUDENT"><StudentDashBoard/></ProtectedRoute>}/>
         <Route path="/activate" element={<ActivateUser />} />
+        <Route path="/teacher" element={<TeacherDashBoard />} />
       </Routes>
 
       <footer className="footer">

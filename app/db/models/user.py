@@ -18,7 +18,11 @@ class User(BaseModel):
     email: Mapped[str] = mapped_column(String(32), unique=True, nullable=True)
 
     profile = relationship(
-        "Profile", back_populates="user", uselist=False, lazy="selectin"
+        "Profile",
+        back_populates="user", 
+        uselist=False, 
+        lazy="selectin",
+        cascade="all, delete-orphan"
     )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

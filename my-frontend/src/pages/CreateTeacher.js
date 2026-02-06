@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUser } from '../api/auth';
+import { createUser } from '../api/create_teacher';
 import styles from './CreateUser.module.css';
 
 const CreateUser = () => {
@@ -12,7 +12,7 @@ const CreateUser = () => {
     e.preventDefault();
     try {
       await createUser(phone, name, surname);
-      setMessage("Студент добавлен!");
+      setMessage("Учитель успешно добавлен!");
     } catch (err) {
       const errors = err.errors;
       if (errors) {

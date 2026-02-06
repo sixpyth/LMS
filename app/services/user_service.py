@@ -1,5 +1,7 @@
 from app.validators.personal_info_validator import (
     validate_info,
+    is_email_exists,
+    is_phone_num_exists
 )
 
 from enums.profile_type import ProfileType
@@ -30,15 +32,15 @@ from app.db.models.profile import Profile
 from logger import logger
 
 
-async def is_email_exists(session, email):
-    result = await session.execute(select(Profile).where(Profile.phone == email))
+# async def is_email_exists(session, email):
+#     result = await session.execute(select(Profile).where(Profile.phone == email))
 
 
-async def is_phone_num_exists(session: AsyncSession, phone: str) -> bool:
-    async with async_session() as session:
-        result = await session.execute(select(Profile).where(Profile.phone == phone))
-        phone = result.scalar_one_or_none()
-        return phone is not None
+# async def is_phone_num_exists(session: AsyncSession, phone: str) -> bool:
+#     async with async_session() as session:
+#         result = await session.execute(select(Profile).where(Profile.phone == phone))
+#         phone = result.scalar_one_or_none()
+#         return phone is not None
 
 
 async def create_teacher_service(session: AsyncSession, data):
@@ -50,7 +52,7 @@ async def create_teacher_service(session: AsyncSession, data):
     except WrongPersonalInfoValidation as e:
         raise WrongInfoInput(errors=e.errors)
 
-    if await is_phone_num_exists(session=session, phone=data.phone) is True:
+    if await is_phone_num_exists(session=session, phone=data.phone):
         raise PhoneNumberExists()
 
     try:

@@ -82,6 +82,8 @@ const StudentsPage = () => {
   >
     Вперёд
   </button>
+          
+
 </div>
 
     </div>
