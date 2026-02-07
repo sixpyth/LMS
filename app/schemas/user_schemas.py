@@ -47,3 +47,13 @@ class UserLoginResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserIn
+
+
+class UpdatePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_new_password: str
+
+
+class UpdatePasswordResponse(BaseModel):
+    message: str

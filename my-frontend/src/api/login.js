@@ -15,6 +15,6 @@ export const loginUser = async (username, password) => {
 
     return user; 
   } catch (err) {
-    throw new Error(err.response?.data?.detail || "Ошибка при входе");
+    throw new Error(err.response?.data?.detail || "ссылка");
   }
 };

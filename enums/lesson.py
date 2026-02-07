@@ -7,9 +7,11 @@ class LessonType(StrEnum):
     INTENSIVE = "INTENSIVE"
     TRIAL = "TRIAL"
 
+
 class Grouping(StrEnum):
     GROUP = "GROUP"
     INDIVIDUEL = "INDIVIDUAL"
+
 
 class Format(StrEnum):
     ONLINE = "ONLINE"

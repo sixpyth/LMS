@@ -1,16 +1,16 @@
 import React, { useMemo, useRef, useState } from "react";
+import token from "../api/update_password"
 
 export default function ProfileSettingsPage() {
   const fileRef = useRef(null);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
-
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [status, setStatus] = useState({ type: "", message: "" }); // type: success|error|info
+  const [status, setStatus] = useState({ type: "", message: "" }); 
 
   const styles = useMemo(
     () => ({

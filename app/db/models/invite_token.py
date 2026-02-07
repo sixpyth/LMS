@@ -11,11 +11,10 @@ class Token(BaseModel):
 
     user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("users.id",ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         unique=True,
         default=uuid.uuid4,
-        
     )
 
     token: Mapped[str] = mapped_column(

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUser } from '../api/auth';
+import { createUser } from '../api/create_user';
 import styles from './CreateUser.module.css';
 
 const CreateUser = () => {

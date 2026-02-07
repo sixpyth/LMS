@@ -1,9 +1,5 @@
-from app.validators.personal_info_validator import (
-    validate_info,
-    is_email_exists,
-    is_phone_num_exists
-)
-
+from app.validators.personal_info_validator import validate_info, is_phone_num_exists
+from app.validators.password_validator import password_validator
 from enums.profile_type import ProfileType
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
@@ -15,32 +11,24 @@ from app.errors.user_errors import (
     WrongPersonalInfoValidation,
     UserNotFound,
     WrongCredentials,
-    NoPasswordFound,
 )
-
-from utils.hash_password import verify_password
+from app.errors.password_errors import (
+    NoPasswordFound,
+    PasswordAlreadyExists,
+    PasswordsNotMatch,
+    WrongPasswordInput,
+    WrongPasswordValidation,
+)
+from utils.hash_password import verify_password, hash_password
 from utils.auth_generator import login_generator
-from app.crud.crud import create
-from app.db.database import AsyncSessionLocal as async_session
+from app.crud.crud import create, get_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors.user_errors import UserAlreadyExists
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from app.db.models.user import User
-from app.db.models.profile import Profile
 from logger import logger
-
-
-# async def is_email_exists(session, email):
-#     result = await session.execute(select(Profile).where(Profile.phone == email))
-
-
-# async def is_phone_num_exists(session: AsyncSession, phone: str) -> bool:
-#     async with async_session() as session:
-#         result = await session.execute(select(Profile).where(Profile.phone == phone))
-#         phone = result.scalar_one_or_none()
-#         return phone is not None
 
 
 async def create_teacher_service(session: AsyncSession, data):
@@ -112,3 +100,28 @@ async def log_in_user_service(
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
     return user.profile, token
+
+
+async def update_user_password_service(
+    data: OAuth2PasswordRequestForm,
+    session: AsyncSession,
+    current_password: str,
+    new_password: str,
+    confirm_new_password: str,
+):
+    user_login = data.login
+    user: User = await get_user(db=session, login=user_login)
+    if not verify_password(password=current_password, hashed=user.password_hash):
+        raise WrongCredentials()
+    if new_password != confirm_new_password:
+        raise PasswordsNotMatch()
+    if new_password == current_password:
+        raise PasswordAlreadyExists()
+    try:
+        password_validator(new_password)
+    except WrongPasswordValidation as errors:
+        raise WrongPasswordInput(errors=errors.errors)
+    hashed_password = hash_password(new_password)
+    user.password_hash = hashed_password
+    await session.commit()
+    return "Пароль был успешно обновлен"

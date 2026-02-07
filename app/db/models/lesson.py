@@ -8,6 +8,7 @@ from uuid import uuid4
 
 class Lesson(BaseModel):
     """List of lessons"""
+
     __tablename__ = "lessons"
 
     start_time: Mapped[DateTime] = mapped_column(DateTime)
@@ -24,12 +25,10 @@ class Lesson(BaseModel):
     )
 
     teacher: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("profiles.user_id", ondelete="SET NULL"), unique=False, default=uuid4
-    )
-    
-    color: Mapped[str] = mapped_column(
-        String(7),
-        default="#3174ad",
-        nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("profiles.user_id", ondelete="SET NULL"),
+        unique=False,
+        default=uuid4,
     )
 
+    color: Mapped[str] = mapped_column(String(7), default="#3174ad", nullable=False)

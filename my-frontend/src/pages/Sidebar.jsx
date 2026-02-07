@@ -15,7 +15,7 @@ export default function Sidebar() {
         <button className="sidebar-item" onClick={()=> navigate("/schedule")}>Schedule</button>
         <button className="sidebar-item">Courses</button>
         <button className="sidebar-item">Reports</button>
-        <button className="sidebar-item">Settings</button>
+        <button className="sidebar-item" onClick={()=> navigate("/settings")} >Settings</button>
       </nav>
     </aside>
   );

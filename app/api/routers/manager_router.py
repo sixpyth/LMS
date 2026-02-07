@@ -16,7 +16,7 @@ from app.schemas.manager_schemas import (
 from app.services.manager_service import (
     add_student_to_lesson_service,
     fetch_all_schedule_service,
-    delete_user_service
+    delete_user_service,
 )
 
 from app.view.manager_view import (
@@ -107,9 +107,11 @@ async def get_teachers(
     )
     return result
 
+
 @api_router.get("/get-schedule")
 async def get_schedule(session: AsyncSession = Depends(get_db)):
-    return await fetch_all_schedule_service(skip=0,limit=5, session=session)
+    return await fetch_all_schedule_service(skip=0, limit=5, session=session)
+
 
 @api_router.post("/delete-user")
 async def delete_user(login: str, session: AsyncSession = Depends(get_db)):

@@ -13,9 +13,9 @@ async def is_email_exists(session, email):
 
 
 async def is_phone_num_exists(session: AsyncSession, phone: str) -> bool:
-        result = await session.execute(select(Profile).where(Profile.phone == phone))
-        phone = result.scalar_one_or_none()
-        return phone is not None
+    result = await session.execute(select(Profile).where(Profile.phone == phone))
+    phone = result.scalar_one_or_none()
+    return phone is not None
 
 
 def validate_info(name: str, surname: str, phone: str) -> bool:

@@ -1,7 +1,14 @@
-from app.view.user_view import create_user_view, log_in_user_view, create_teacher_view
+from app.view.user_view import (
+    create_user_view,
+    log_in_user_view,
+    create_teacher_view,
+    update_user_password_view,
+)
 from app.view.profile_view import activate_user_profile_view
 from fastapi import APIRouter, Depends
-from app.db.deps import get_db
+from app.db.deps import get_db, get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
+from app.db.models.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.user_schemas import (
     ProfileCreateRequest,
@@ -9,10 +16,8 @@ from app.schemas.user_schemas import (
     ProfileCreateErrors,
     UserCreateResponse,
     UserCreateRequest,
-)
-from app.schemas.user_schemas import (
-    UserLoginResponse,
-    UserLoginRequest,
+    UpdatePasswordRequest,
+    UpdatePasswordResponse,
 )
 
 
@@ -49,13 +54,36 @@ async def activate_user(
     )
 
 
-@api_router.post("/login/user", response_model=UserLoginResponse)
-async def user_login(
-    request: UserLoginRequest, session: AsyncSession = Depends(get_db)
-) -> UserLoginResponse:
-    result = await log_in_user_view(data=request, session=session)
-    return {
-        "access_token": result.access_token,
-        "token_type": result.token_type,
-        "user": result.user,
-    }
+# @api_router.post("/login/user", response_model=UserLoginResponse)
+# async def user_login(
+#     request: UserLoginRequest, session: AsyncSession = Depends(get_db)
+# ) -> UserLoginResponse:
+#     result = await log_in_user_view(data=request, session=session)
+#     return {
+#         "access_token": result.access_token,
+#         "token_type": result.token_type,
+#         "user": result.user,
+#     }
+
+
+@api_router.patch("/update-password", response_model=UpdatePasswordResponse)
+async def user_password_update(
+    request: UpdatePasswordRequest,
+    data: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    await update_user_password_view(
+        data=data,
+        session=session,
+        current_password=request.current_password,
+        new_password=request.new_password,
+        confirm_new_password=request.confirm_new_password,
+    )
+    return UpdatePasswordResponse(message="Пароль успешно обновлён")
+
+
+@api_router.post("/login/user")
+async def login(
+    form: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_db)
+):
+    return await log_in_user_view(form, session)

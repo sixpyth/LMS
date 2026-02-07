@@ -33,8 +33,8 @@ export default function App() {
             <Link to="/">
               <button className="btn-red">Главная</button>
             </Link>
-            <Link to="/student">
-              <button className="btn-red">Страница студента</button>
+            <Link to="/login">
+              <button className="btn-red">Войти</button>
             </Link>
           </nav>
         </div>
@@ -43,7 +43,7 @@ export default function App() {
       {/* Основные маршруты */}
       <Routes>
         <Route path="/" element={<HomeContent />} />
-        <Route path="/student/settings" element={<ProfileSettingsPage />} />
+        <Route path="/settings" element={<ProfileSettingsPage />} />
         <Route path="/manager" element={<ProtectedRoute role="ADMIN"><ManagerDashboard/></ProtectedRoute>} />
         <Route path="/manager/students" element={<ProtectedRoute role="ADMIN"><StudentsPage/></ProtectedRoute>} />
         <Route path="/manager/teachers" element={<ProtectedRoute role="ADMIN"><TeachersPage/></ProtectedRoute>} />

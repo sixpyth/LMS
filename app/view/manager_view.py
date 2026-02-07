@@ -53,15 +53,14 @@ async def add_schedule_view(
         )
     except UserNotFound:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Учитель не найден, проверьте имя или фамилию"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Учитель не найден, проверьте имя или фамилию",
         )
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Произошла ошибка. Пожалуйста, попробуйте позже",
         )
-
-
 
 
 async def add_student_to_lesson_view(

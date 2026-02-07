@@ -14,8 +14,9 @@ const Login = () => {
     e.preventDefault();
     try {
       const user = await loginUser(username, password);
-      if (user.profile_type == "TEACHER") navigate("/manager")
+      if (user.profile_type == "TEACHER") navigate("/teacher")
       else if (user.profile_type == "STUDENT") navigate ("/student")
+      else if (user.profile_type == "MANAGER") navigate ("/manager")
     
     } catch (err) {
       setMessage(err.message || "Ошибка при входе");
@@ -47,6 +48,7 @@ const Login = () => {
           Войти
         </button>
         {message && <p className={styles.message}>{message}</p>}
+        <a href="/activate" style={{fontSize:"12px",color:"grey",fontFamily:"sans-serif",paddingTop:"8px"}}>Активировать аккаунт</a>
       </form>
     </div>
   );

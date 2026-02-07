@@ -2,11 +2,7 @@ from sqlalchemy import DateTime, UUID, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.lesson import Lesson
 from app.db.models.lessons_students import LessonStudents
-from app.crud.crud import (
-    get_user, 
-    get_profiles,
-    delete
-)
+from app.crud.crud import get_user, get_profiles, delete
 from enums.lesson import LessonType, Format
 from app.errors.user_errors import UserNotFound
 from sqlalchemy.exc import NoResultFound
@@ -70,12 +66,10 @@ async def fetch_all_teachers_service(
     )
 
 
-async def   fetch_all_schedule_service(
-        skip: int, limit: int, session: AsyncSession
-):
+async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSession):
     query = select(Lesson.start_time, Lesson.finish_time, Lesson.type, Lesson.format)
     result = await session.execute(query)
-   
+
     profiles = [
         {
             "start": row.start_time,
@@ -90,6 +84,7 @@ async def   fetch_all_schedule_service(
         "schedule": profiles,
     }
 
+
 async def delete_user_service(login: str, session: AsyncSession):
-    await delete(db=session,login=login)
+    await delete(db=session, login=login)
     return "Успешно удален"
