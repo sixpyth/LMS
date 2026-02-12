@@ -1,16 +1,33 @@
 import React, { useEffect, useState } from "react";
 import styles from "./StudentsPage.module.css";
 import fetch_users from "../api/fetch_users"
+import { deleteUser } from "../api/delete_user";
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
   const [filter, setFilter] = useState(""); 
   const [page, setPage] = useState(1);
   const [count, setTotal] = useState(0);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   const limit = 10
   const totalPages = Math.ceil(count / limit);
   
+
+const handleDelete = async (login) => {
+  try {
+    await deleteUser(login);
+
+    
+    setStudents(prev => prev.filter(u => u.login !== login));
+    setSelectedUserId(null);
+
+  } catch (e) {
+    console.error(e);
+    alert("Ошибка при удалении пользователя");
+  }
+};
+
   useEffect(() => {
   const fetchStudents = async () => {
     try {
@@ -52,17 +69,24 @@ const StudentsPage = () => {
             <th>Статус</th>
           </tr>
         </thead>
-        <tbody>
-          {filteredStudents.map((student, index) => (
-            <tr key={index}>
-              <td>{student.name}</td>
-              <td>{student.surname}</td>
-              <td>{student.profile_type}</td>
-              <td>{student.age}</td>
-              <td>{student.status}</td>
-            </tr>
-          ))}
-        </tbody>
+       <tbody>
+  {filteredStudents.map((student) => (
+    <tr
+      key={student.id}
+      onClick={() => setSelectedUserId(student.login)}
+      style={{
+        background: selectedUserId === student.login ? "#e6f0ff" : "transparent",
+        cursor: "pointer",
+      }}
+    >
+      <td>{student.name}</td>
+      <td>{student.surname}</td>
+      <td>{student.profile_type}</td>
+      <td>{student.age}</td>
+      <td>{student.status}</td>
+    </tr>
+  ))}
+</tbody>
       </table>
       <div className={styles.pagination}>
   <button
@@ -83,6 +107,12 @@ const StudentsPage = () => {
     Вперёд
   </button>
           
+<button 
+  onClick={() => handleDelete(selectedUserId)}
+  disabled={!selectedUserId}
+>
+  Удалить
+</button>
 
 </div>
 

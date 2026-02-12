@@ -14,6 +14,7 @@ class AddScheduleRequest(BaseModel):
     teacher_login: str
     format: Format
     type: LessonType
+    color: str
 
 
 class AddStudentToLessonResponse(BaseModel):

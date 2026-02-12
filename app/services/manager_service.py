@@ -4,9 +4,11 @@ from app.db.models.lesson import Lesson
 from app.db.models.lessons_students import LessonStudents
 from app.crud.crud import get_user, get_profiles, delete
 from enums.lesson import LessonType, Format
+from sqlalchemy.orm import selectinload
 from app.errors.user_errors import UserNotFound
 from sqlalchemy.exc import NoResultFound
 from app.db.models.user import User
+from app.db.models.profile import Profile
 
 
 async def add_schedule_service(
@@ -16,6 +18,7 @@ async def add_schedule_service(
     teacher_login: str,
     format: Format,
     type: LessonType,
+    color: str | None,
 ):
     """
     Function creates schedule with the chosen teacher/format/type
@@ -31,9 +34,10 @@ async def add_schedule_service(
     lesson = Lesson(
         start_time=start,
         finish_time=finish,
-        teacher=teacher_id,
+        teacher_id=teacher_id,
         type=type,
         format=format,
+        color=color
     )
     session.add(lesson)
     await session.commit()
@@ -43,6 +47,9 @@ async def add_schedule_service(
 async def add_student_to_lesson_service(
     session: AsyncSession, student: str, lesson_id: UUID
 ):
+    """
+    Add one student to a chosen lesson
+    """
     student = await get_user(db=session, login=student)
     lesson = LessonStudents(lesson_id=lesson_id, profile_id=student.id)
     session.add(lesson)
@@ -53,22 +60,35 @@ async def add_student_to_lesson_service(
 async def fetch_all_students_service(
     limit: int, skip: int, session: AsyncSession, profile_type
 ):
+    """
+    Returns a number of all students.
+    Used in manager's dashboard
+    """
     return await get_profiles(
         limit=limit, skip=skip, db=session, profile_type=profile_type
     )
 
 
 async def fetch_all_teachers_service(
-    skip: int, limit: int, session: AsyncSession, profile_type
+    limit: int, skip: int, session: AsyncSession, profile_type
 ):
+    """
+    Returns a number of all teachers.
+    Used in manager's dashboard
+    """
     return await get_profiles(
         db=session, skip=skip, limit=limit, profile_type=profile_type
     )
 
 
 async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSession):
-    query = select(Lesson.start_time, Lesson.finish_time, Lesson.type, Lesson.format)
+    """
+    Returns the shedule for calendar
+    """
+
+    query = select(Lesson).options(selectinload(Lesson.teacher))
     result = await session.execute(query)
+    lessons = result.scalars().all()
 
     profiles = [
         {
@@ -76,8 +96,11 @@ async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSessio
             "finish": row.finish_time,
             "lesson_type": row.type,
             "lesson_format": row.format,
+            "teacher": row.teacher.name,
+            "color": row.color,
+            "lesson_id": row.id
         }
-        for row in result.all()
+        for row in lessons
     ]
 
     return {
@@ -86,5 +109,21 @@ async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSessio
 
 
 async def delete_user_service(login: str, session: AsyncSession):
+    """
+    Deletes the user by login
+    """
     await delete(db=session, login=login)
     return "Успешно удален"
+
+
+async def delete_schedule_service(session: AsyncSession, lession_id:str):
+    """
+    Deletes the chose schedule
+    """
+
+    query = select(Lesson).where(Lesson.id==lession_id)
+    result = await session.execute(query)
+    lesson = result.scalar_one_or_none()
+    await session.delete(lesson)
+    await session.commit()
+    return "Урок успешно удален"

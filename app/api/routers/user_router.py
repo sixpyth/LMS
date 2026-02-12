@@ -1,5 +1,5 @@
 from app.view.user_view import (
-    create_user_view,
+    create_student_view,
     log_in_user_view,
     create_teacher_view,
     update_user_password_view,
@@ -18,6 +18,8 @@ from app.schemas.user_schemas import (
     UserCreateRequest,
     UpdatePasswordRequest,
     UpdatePasswordResponse,
+    UserLoginRequest,
+    UserLoginResponse,
 )
 
 
@@ -28,7 +30,7 @@ api_router = APIRouter(prefix="/users", tags=["User"])
 async def create_student(
     request: ProfileCreateRequest, session: AsyncSession = Depends(get_db)
 ) -> ProfileCreateResponse:
-    result = await create_user_view(session=session, data=request)
+    result = await create_student_view(session=session, data=request)
     return result
 
 
@@ -54,16 +56,16 @@ async def activate_user(
     )
 
 
-# @api_router.post("/login/user", response_model=UserLoginResponse)
-# async def user_login(
-#     request: UserLoginRequest, session: AsyncSession = Depends(get_db)
-# ) -> UserLoginResponse:
-#     result = await log_in_user_view(data=request, session=session)
-#     return {
-#         "access_token": result.access_token,
-#         "token_type": result.token_type,
-#         "user": result.user,
-#     }
+@api_router.post("/login/user", response_model=UserLoginResponse)
+async def user_login(
+    request: UserLoginRequest, session: AsyncSession = Depends(get_db)
+) -> UserLoginResponse:
+    result = await log_in_user_view(data=request, session=session)
+    return {
+        "access_token": result.access_token,
+        "token_type": result.token_type,
+        "user": result.user,
+    }
 
 
 @api_router.patch("/update-password", response_model=UpdatePasswordResponse)
@@ -82,8 +84,8 @@ async def user_password_update(
     return UpdatePasswordResponse(message="Пароль успешно обновлён")
 
 
-@api_router.post("/login/user")
-async def login(
-    form: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_db)
-):
-    return await log_in_user_view(form, session)
+# @api_router.post("/login/user")
+# async def login(
+#     form: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_db)
+# ):
+#     return await log_in_user_view(form, session)

@@ -50,7 +50,6 @@ export default function ManagerDashboard() {
         format,
         type,
         color,
-        // students: students.split(",")
       });
       setShowScheduleModal(false);
     } catch (e) {

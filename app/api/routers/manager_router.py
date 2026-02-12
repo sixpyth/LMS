@@ -14,15 +14,17 @@ from app.schemas.manager_schemas import (
     GetTeachersResponse,
 )
 from app.services.manager_service import (
+    #TODO remove services
     add_student_to_lesson_service,
     fetch_all_schedule_service,
-    delete_user_service,
 )
 
 from app.view.manager_view import (
     fetch_all_students_view,
     fetch_all_teachers_view,
     add_schedule_view,
+    delete_user_view,
+    delete_schedule_view,
 )
 
 from sqlalchemy.orm import selectinload
@@ -58,6 +60,7 @@ async def add_schedule(
         teacher_login=request.teacher_login,
         format=request.format,
         type=request.type,
+        color=request.color
     )
     return result
 
@@ -78,13 +81,14 @@ async def get_user(login, session: AsyncSession = Depends(get_db)):
     role = select(User).options(selectinload(User.profile)).where(User.login == login)
     result = await session.execute(role)
     user = result.scalar_one_or_none()
-
+    return user
 
 @api_router.get("/get-students", response_model=GetStudentsResponse)
 async def get_students(
     request: GetStudentsRequest = Query(),
     session: AsyncSession = Depends(get_db),
 ):
+    """Returns all students. Used for manager's dashboard"""
     result = await fetch_all_students_view(
         limit=request.limit,
         skip=request.skip,
@@ -99,6 +103,7 @@ async def get_teachers(
     request: GetTeachersRequest = Query(),
     session: AsyncSession = Depends(get_db),
 ):
+    """Returns all teachers. Used for manager's dashboard"""
     result = await fetch_all_teachers_view(
         limit=request.limit,
         skip=request.skip,
@@ -110,9 +115,15 @@ async def get_teachers(
 
 @api_router.get("/get-schedule")
 async def get_schedule(session: AsyncSession = Depends(get_db)):
+    """Returns all schedule for the calendar"""
     return await fetch_all_schedule_service(skip=0, limit=5, session=session)
 
 
-@api_router.post("/delete-user")
+@api_router.delete("/delete-user")
 async def delete_user(login: str, session: AsyncSession = Depends(get_db)):
-    return await delete_user_service(login=login, session=session)
+    """Delets a chosen user by login"""
+    return await delete_user_view(login=login, session=session)
+
+@api_router.delete("/delete-schedule")
+async def delete_schedule(lesson_id: str,session: AsyncSession=Depends(get_db)):
+    return await delete_schedule_view(lession_id=lesson_id, session=session)

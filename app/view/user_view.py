@@ -1,6 +1,6 @@
 from logger import logger
 from app.services.user_service import (
-    create_user_service,
+    create_student_service,
     create_teacher_service,
     log_in_user_service,
     update_user_password_service,
@@ -27,11 +27,11 @@ from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-async def create_user_view(session: AsyncSession, data):
+async def create_student_view(session: AsyncSession, data):
     try:
-        await create_user_service(session=session, data=data)
+        await create_student_service(session=session, data=data)
         return UserCreateResponse(
-            message=f"Учитель {data.surname} {data.name} был успешно добавлен!"
+            message=f"Студент {data.surname} {data.name} был успешно добавлен!"
         )
 
     except PhoneNumberExists:

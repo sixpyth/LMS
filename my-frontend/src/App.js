@@ -1,7 +1,7 @@
-import React from "react";
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import StudentDashBoard from "./pages/StudentDashBoard";
 import './App.css';
+import StudentDashBoard from "./pages/StudentDashBoard";
 import ManagerDashboard from "./pages/ManagerDashBoard";
 import CreateUser from "./pages/CreateUser";
 import Login from "./pages/Login";
@@ -14,6 +14,11 @@ import AudioCourses from "./pages/AudioCourse";
 import CreateTeacher from "./pages/CreateTeacher";
 import QuizletLinksPage from "./pages/Quizlet";
 import TeacherDashBoard from "./pages/TeachersDashBoard"
+import { UserProvider } from "./userContext";
+import { useUser } from "./userContext";
+import getProfile from "./api/get_profile";
+
+
 
 const ProtectedRoute = ({ children, role }) => {
   const userStr = localStorage.getItem("user");
@@ -21,56 +26,79 @@ const ProtectedRoute = ({ children, role }) => {
   return children;
 };
 
-
 export default function App() {
   return (
-    <Router>
-     
+    <UserProvider>
+      <Router>
+        <AppLayout />
+      </Router>
+    </UserProvider>
+  );
+}
+
+function AppLayout() {
+  const { setUser } = useUser();
+
+useEffect(() => {
+  getProfile()
+    .then(setUser)
+    .catch(err => {
+      console.error("Profile load failed:", err);
+    });
+}, []);
+  return (
+    <div className="home-container">
+
       <header className="header">
         <div className="header-content">
           <div className="logo">DNK STUDIO</div>
-          <nav style={{ display: 'flex', gap: '1rem' }}>
-            <Link to="/">
-              <button className="btn-red">Главная</button>
-            </Link>
-            <Link to="/login">
-              <button className="btn-red">Войти</button>
-            </Link>
+          <nav style={{ display: "flex", gap: "1rem" }}>
+            <Link to="/"><button className="btn-red">Главная</button></Link>
+            <Link to="/login"><button className="btn-red">Войти</button></Link>
           </nav>
         </div>
       </header>
 
-      {/* Основные маршруты */}
-      <Routes>
-        <Route path="/" element={<HomeContent />} />
-        <Route path="/settings" element={<ProfileSettingsPage />} />
-        <Route path="/manager" element={<ProtectedRoute role="ADMIN"><ManagerDashboard/></ProtectedRoute>} />
-        <Route path="/manager/students" element={<ProtectedRoute role="ADMIN"><StudentsPage/></ProtectedRoute>} />
-        <Route path="/manager/teachers" element={<ProtectedRoute role="ADMIN"><TeachersPage/></ProtectedRoute>} />
-        <Route path="/manager/add-student" element={<ProtectedRoute role="ADMIN"><CreateUser/></ProtectedRoute>}/>
-        <Route path="/manager/add-teacher" element={<ProtectedRoute role="ADMIN"><CreateTeacher/></ProtectedRoute>}/>
-        <Route path="/schedule" element={<SchedulePage />} />
-        <Route path="/student/audio-course" element={<AudioCourses />} />
-        <Route path="/student/quizlet" element={<QuizletLinksPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/student" element={<ProtectedRoute role="STUDENT"><StudentDashBoard/></ProtectedRoute>}/>
-        <Route path="/activate" element={<ActivateUser />} />
-        <Route path="/teacher" element={<TeacherDashBoard />} />
-      </Routes>
+      <main className="content">
+        <Routes>
+          <Route path="/" element={<HomeContent />} />
+          <Route path="/settings" element={<ProfileSettingsPage />} />
+          <Route path="/manager" element={<ManagerDashboard />} />
+          <Route path="/manager/students" element={<StudentsPage />} />
+          <Route path="/manager/teachers" element={<TeachersPage />} />
+          <Route path="/manager/add-student" element={<CreateUser />} />
+          <Route path="/manager/add-teacher" element={<CreateTeacher />} />
+          <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/student/audio-course" element={<AudioCourses />} />
+          <Route path="/student/quizlet" element={<QuizletLinksPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/student" element={<StudentDashBoard />} />
+          <Route path="/activate" element={<ActivateUser />} />
+          <Route path="/teacher" element={<TeacherDashBoard />} />
+        </Routes>
+      </main>
 
       <footer className="footer">
-        <div>© 2026. Все права защищены.</div>
+        <span className="footer-text">© 2026. Все права защищены.</span>
+        <div className="footer-icons">
+          <Link to="https://www.instagram.com/english.dnk/">
+            <img className="footer-icon" src="https://upload.wikimedia.org/wikipedia/commons/2/28/Instagram_logo.png" />
+          </Link>
+          <Link to="/wikipedia.com">
+            <img className="footer-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/whatsapp-white-icon.png" />
+          </Link>
+        </div>
       </footer>
-    </Router>
+
+    </div>
   );
 }
-
 
 function HomeContent() {
   return (
     <div className="home-container">
        <main className="content">
-    {/* hero, courses, info и т.д. */}
+  
   </main>
       <section className="hero">
         <div className="hero-text">
