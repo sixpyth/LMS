@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -11,6 +12,7 @@ origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.add_middleware(
     CORSMiddleware,

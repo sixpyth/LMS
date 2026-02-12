@@ -32,7 +32,3 @@ class UserNotFound(UserError):
 
 class WrongCredentials(UserError):
     """Wrong login or password"""
-
-
-class NoPasswordFound(UserError):
-    """Current user hasn't created unique password yet"""

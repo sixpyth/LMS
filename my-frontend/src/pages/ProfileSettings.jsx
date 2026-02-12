@@ -1,16 +1,20 @@
 import React, { useMemo, useRef, useState } from "react";
+import token from "../api/update_password"
+import uploadAvatar from "../api/upload_avatar"
+import { useUser } from "../userContext";
 
 export default function ProfileSettingsPage() {
   const fileRef = useRef(null);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
-
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [status, setStatus] = useState({ type: "", message: "" }); // type: success|error|info
+  const [status, setStatus] = useState({ type: "", message: "" }); 
+
+  const { user, setUser } = useUser()
 
   const styles = useMemo(
     () => ({
@@ -162,7 +166,7 @@ export default function ProfileSettingsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // простая валидация типов, потому что людям нельзя доверять
+
     const okTypes = ["image/png", "image/jpeg", "image/webp"];
     if (!okTypes.includes(file.type)) {
       setStatus({ type: "error", message: "Поддерживаются PNG / JPG / WEBP." });
@@ -170,10 +174,9 @@ export default function ProfileSettingsPage() {
       return;
     }
 
-    // лимит 5MB, чтобы не превращать твой бэкенд в свалку
-    const maxBytes = 5 * 1024 * 1024;
+    const maxBytes = 2 * 1024 * 1024;
     if (file.size > maxBytes) {
-      setStatus({ type: "error", message: "Файл слишком большой. До 5MB, пожалуйста." });
+      setStatus({ type: "error", message: "Файл слишком большой. До 2MB, пожалуйста." });
       e.target.value = "";
       return;
     }
@@ -188,22 +191,29 @@ export default function ProfileSettingsPage() {
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  async function onSaveAvatar() {
-    if (!avatarFile) {
-      setStatus({ type: "error", message: "Сначала выбери файл аватара." });
-      return;
-    }
-
-    // Тут должен быть запрос на бэк: multipart/form-data
-    // Ниже просто заглушка.
-    try {
-      setStatus({ type: "info", message: "Сохраняю аватар… (ну как бы)" });
-      await new Promise((r) => setTimeout(r, 600));
-      setStatus({ type: "success", message: "Аватар сохранён (заглушка). Подключи API и будет правда." });
-    } catch {
-      setStatus({ type: "error", message: "Не удалось сохранить аватар." });
-    }
+ async function onSaveAvatar() {
+  if (!avatarFile) {
+    setStatus({ type: "error", message: "Сначала выбери файл аватара." });
+    return;
   }
+
+  try {
+    setStatus({ type: "info", message: "Загружаю аватар…" });
+
+    const avatar_url = await uploadAvatar(avatarFile);
+
+    setUser(prev => ({
+      ...prev,
+      avatar_url: avatar_url
+    }));
+
+    setStatus({ type: "success", message: "Аватар сохранён." });
+
+  } catch (e) {
+    console.error(e);
+    setStatus({ type: "error", message: "Не удалось сохранить аватар." });
+  }
+}
 
   function validatePasswordForm() {
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -230,7 +240,6 @@ export default function ProfileSettingsPage() {
       return;
     }
 
-    // Тут должен быть запрос на бэк
     try {
       setStatus({ type: "info", message: "Меняю пароль… (честное слово)" });
       await new Promise((r) => setTimeout(r, 700));
@@ -273,17 +282,22 @@ export default function ProfileSettingsPage() {
 
             <div style={styles.row}>
               <div style={styles.avatarWrap}>
-                {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar preview" style={styles.avatarImg} />
-                ) : (
-                  <div style={styles.avatarPlaceholder}>
-                    Нет аватара
-                    <br />
-                    (пока что)
-                  </div>
-                )}
-              </div>
-
+  {user?.avatar_url ? (
+    <img
+      src={user.avatar_url}
+      style={styles.avatarImg}
+    />
+  ) : avatarPreview ? (
+    <img
+      src={avatarPreview}
+      style={styles.avatarImg}
+    />
+  ) : (
+    <div style={styles.avatarPlaceholder}>
+      Нет аватара
+    </div>
+  )}
+</div>
               <div>
                 <div style={styles.actions}>
                   <button

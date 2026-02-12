@@ -5,7 +5,7 @@ const DEFAULT_MODULES = Array.from({ length: 12 }).map((_, i) => ({
   id: i + 1,
   title: `Module ${i + 1}`,
   description: `Vocabulary set for Module ${i + 1}`,
-  url: "https://quizlet.com/latest",
+  url: "https://quizlet.com/kz/689388275/words-unit-1-flash-cards/?funnelUUID=8c3c46fc-7729-4f1b-b969-ac2636a8bc1a",
 }));
 
 export default function QuizletPage() {

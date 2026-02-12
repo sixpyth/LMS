@@ -1,13 +1,16 @@
+from logger import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from app.db.models.lesson import Lesson
 from enums.lesson import Format, LessonType
 from app.errors.user_errors import UserNotFound
-
 from app.services.manager_service import (
     fetch_all_students_service,
     fetch_all_teachers_service,
     add_schedule_service,
     add_student_to_lesson_service,
+    delete_user_service,
+    delete_schedule_service
 )
 from app.schemas.manager_schemas import (
     AddScheduleResponse,
@@ -41,6 +44,7 @@ async def add_schedule_view(
     format: Format,
     type: LessonType,
     session: AsyncSession,
+    color: str | None,
 ):
     try:
         return await add_schedule_service(
@@ -50,18 +54,20 @@ async def add_schedule_view(
             format=format,
             type=type,
             session=session,
+            color=color
         )
     except UserNotFound:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Учитель не найден, проверьте имя или фамилию"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Учитель не найден, проверьте имя или фамилию",
         )
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Произошла ошибка. Пожалуйста, попробуйте позже",
         )
-
-
+    
 
 
 async def add_student_to_lesson_view(
@@ -78,3 +84,15 @@ async def add_student_to_lesson_view(
         )
 
     return AddScheduleResponse(message="Success")
+
+
+async def delete_user_view(login: str, session: AsyncSession):
+    try:
+        return await delete_user_service(login=login,session=session)
+    except UserNotFound:
+        logger.error(msg=f"User {login} not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    
+
+async def delete_schedule_view(lession_id: str, session: AsyncSession):
+    return await delete_schedule_service(session=session,lession_id=lession_id)

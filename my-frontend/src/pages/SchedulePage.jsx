@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { Calendar, dayjsLocalizer } from "react-big-calendar";
 import dayjs from "dayjs";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "./SchedulePage.module.css";
+import styles from "./SchedulePage.module.css";
+import { deleteSchedule } from "../api/delete_schedule";
+import { title } from "framer-motion/client";
+
 
 const localizer = dayjsLocalizer(dayjs);
 
-export default function SchedulePage({ role = "student" }) {
+export default function SchedulePage({ role = "Student" }) {
   const [events, setEvents] = useState([]);
   const [color, setColor] = useState("#3174ad");
 
@@ -17,10 +20,11 @@ export default function SchedulePage({ role = "student" }) {
 
       const formatted = data.schedule.map((lesson, index) => ({
         id: index + 1,
-        title: `${lesson.lesson_type} (${lesson.lesson_format})`,
+        title: `${lesson.lesson_type} (${lesson.lesson_format}) ${lesson.teacher}` ,
         start: new Date(lesson.start),
         end: new Date(lesson.finish),
-        color: setColor,
+        color: lesson.color,
+        lesson_id: lesson.lesson_id
       }));
 
       setEvents(formatted);
@@ -39,8 +43,10 @@ export default function SchedulePage({ role = "student" }) {
     ]);
   };
 
-  const onSelectEvent = (event) => {
+  const onSelectEvent = async (event) => {
     if (window.confirm("Удалить занятие?")) {
+      console.log(event.lesson_id)
+      await deleteSchedule(event.lesson_id)
       setEvents(events.filter((e) => e.id !== event.id));
     }
   };
@@ -55,13 +61,15 @@ export default function SchedulePage({ role = "student" }) {
   });
 
   return (
-    <div className="schedule-page">
-      <header className="schedule-header">
-        <h1>Schedule</h1>
-        <span className={`role-badge ${role}`}>{role}</span>
+    <div className={styles.schedulePage}>
+      <header className={styles.scheduleHeader}>
+        <h1>Расписание</h1>
+        <span className={`${styles.roleBadge} ${styles[role]}`}>
+  {role}
+</span>
       </header>
 
-      <div className="schedule-container">
+      <div className={styles.scheduleContainer}>
         <Calendar
           localizer={localizer}
           events={events}

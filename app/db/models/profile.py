@@ -34,3 +34,7 @@ class Profile(BaseModel):
     profile_type: Mapped[ProfileType] = mapped_column(
         Enum(ProfileType), nullable=False, unique=False, default="STUDENT"
     )
+
+    avatar_url: Mapped[str | None] = mapped_column(
+        String(500), unique=True, nullable=True
+    )

@@ -1,24 +1,29 @@
-.schedule-page {
+.schedulePage {
   min-height: 100vh;
   background: white;
   padding: 24px;
   box-sizing: border-box;
 }
 
-.schedule-header {
+
+.scheduleHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.schedule-header h1 {
+.scheduleHeader h1 {
   font-size: 28px;
-  color: #000;
+  color: #282828;
   margin: 0;
+  padding-left: 70px;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-.role-badge {
+
+
+.roleBadge {
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 14px;
@@ -26,19 +31,20 @@
   text-transform: uppercase;
 }
 
-.role-badge.manager {
+.manager {
   background: black;
   color: red;
 }
 
-.role-badge.student {
+.student {
   background: red;
   color: white;
 }
 
-.schedule-container {
-  width: 65%;
-  height: calc(100vh - 120px);
+
+.scheduleContainer {
+  width: 90%;
+  height: 90vh;
   margin: 0 auto;
   border-radius: 14px;
   border: 2px solid black;
@@ -46,6 +52,10 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
+.rbc-calendar {
+  height: 100%;
+  font-family: Inter, system-ui, sans-serif;
+}
 
 .rbc-toolbar {
   color: black;

@@ -19,10 +19,10 @@ class User(BaseModel):
 
     profile = relationship(
         "Profile",
-        back_populates="user", 
-        uselist=False, 
+        back_populates="user",
+        uselist=False,
         lazy="selectin",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
     )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

@@ -6,7 +6,8 @@ const ActivateUser = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [login, setLogin] = useState("");
-  const [message, setMessage] = useState("");
+  const [detail, setMessage] = useState("");
+  const [errors, setErrors] = useState([]);
 
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
@@ -14,10 +15,17 @@ const ActivateUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await activateUser(token, email, password, login);
+      await activateUser(token, email, password, login, errors);
       setMessage("Аккаунт успешно активирован!");
     } catch (err) {
-      setMessage(err.message);
+      if (err.errors) {
+        setErrors(err.errors || []);
+        setMessage("");
+        // setMessage(err.detail)
+      } else if (err.detail) {
+        setMessage(err.detail);
+        setErrors([]);
+      }
     }
   };
 
@@ -50,7 +58,19 @@ const ActivateUser = () => {
           className={styles.input}
         />
         <button type="submit" className={styles.button}>Активировать</button>
-        {message && <p className={styles.message}>{message}</p>}
+        
+        {detail && <p className={styles.message}>{detail}</p>}
+
+        {errors.length > 0 && (
+          <ol style={{textAlign:"left",lineHeight:"20px",paddingTop:"2px",paddingRight:"25px",fontSize:"12px",color:"grey"}}>
+            {errors.map((e, index) => (
+              <li key={index}>
+                {e.detail}
+              </li>
+            ))}
+          </ol>
+        )}
+
       </form>
     </div>
   );

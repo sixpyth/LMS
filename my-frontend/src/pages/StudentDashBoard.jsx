@@ -2,43 +2,31 @@ import React, { useState, useEffect } from "react";
 import { FaGraduationCap, FaTimes, FaCalendarAlt, FaHeadphones, FaChartBar, FaBars, FaCog, FaDoorOpen } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../userContext";
+import { useContext } from "react";
 
 
 export default function StudyDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState("");
-  const [avatar, setAvatar] = useState(null); 
   const [message, setMessage] = useState("");
-  
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      if (JSON.parse(savedUser).avatar_url) setAvatar(JSON.parse(savedUser).avatar_url);
-    }
-  }, []);
-  
-const handleLogout = () => {
+
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+
+  const handleLogout = () => {
   localStorage.removeItem("user");
-  setUser(null)
+  user(null)
   navigate("/login");
 };
 
-  const navigate = useNavigate()
-
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAvatar(URL.createObjectURL(file)); 
-    }
-  };
 
   const openSchedule = () => {
     navigate("/schedule")
   }
 
   const openSettings = () => {
-    navigate("/student/settings")
+    navigate("/settings")
   }
 
   const openAudioCourse = () => {
@@ -103,25 +91,35 @@ const handleLogout = () => {
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem', alignItems: 'center', gap: '1rem' }}>
          
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              background: '#de2d2d',
-              color: 'white',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              overflow: 'hidden',
-              fontSize: '1.2rem'
-            }}>
-              {avatar ? <img src={avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : user?.name ? user.name[0].toUpperCase() : "?"}
-            </div>
+            <div
+  style={{
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    background: '#de2d2d',
+    overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontSize: '1.2rem',
+    color: 'white'
+  }}
+>
+  {user?.avatar_url ? (
+  <img
+    src={user.avatar_url}
+    alt="avatar"
+    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+  />
+) : (
+  user?.name?.[0]?.toUpperCase() || "?"
+)}
+</div>
           </div>
         </div>
 
         <div style={{ flex: 1, padding: '1rem' }}>
-          <p>Добро пожаловать, {user.name}!</p>
+          <p>Добро пожаловать, {user?.name}!</p>
           {message && <p>{message}</p>}
         </div>
       </main>

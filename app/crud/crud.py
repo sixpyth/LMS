@@ -8,6 +8,7 @@ from app.schemas.user_schemas import ProfileCreateRequest
 from utils.auth_generator import generate_token
 from sqlalchemy import func
 from enums.profile_type import ProfileType
+from app.errors.user_errors import UserNotFound
 
 
 async def create(db: AsyncSession, login: str, profile: ProfileCreateRequest):
@@ -39,7 +40,7 @@ async def get_profiles(
 ):
     """Returns all users with the chosen profile type"""
     query = select(
-        Profile.name, Profile.surname, Profile.profile_type, User.status
+        Profile.name, Profile.surname, Profile.profile_type, User.login, User.status
     ).join(User)
 
     if profile_type:
@@ -63,6 +64,7 @@ async def get_profiles(
             "surname": row.surname,
             "profile_type": row.profile_type,
             "status": row.status,
+            "login":row.login
         }
         for row in result.all()
     ]
@@ -87,7 +89,7 @@ async def update(db: AsyncSession, login: int, user_data):
 async def delete(db: AsyncSession, login: int):
     user = await get_user(db, login)
     if not user:
-        return "Пользователь не найден"
+        raise UserNotFound()
     await db.delete(user)
     await db.commit()
     return user
