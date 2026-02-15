@@ -8,9 +8,11 @@ from sqlalchemy.orm import selectinload
 from app.errors.user_errors import UserNotFound
 from sqlalchemy.exc import NoResultFound
 from app.db.models.user import User
-from app.db.models.profile import Profile
-
-
+from enums.profile_type import ProfileType
+from app.errors.user_errors import (
+    UserNotTeacher, 
+    UserTeacher,
+)
 async def add_schedule_service(
     session: AsyncSession,
     start: DateTime,
@@ -37,7 +39,7 @@ async def add_schedule_service(
         teacher_id=teacher_id,
         type=type,
         format=format,
-        color=color
+        color=color,
     )
     session.add(lesson)
     await session.commit()
@@ -45,13 +47,25 @@ async def add_schedule_service(
 
 
 async def add_student_to_lesson_service(
-    session: AsyncSession, student: str, lesson_id: UUID
+    session: AsyncSession, login: str, lesson_id: UUID
 ):
     """
     Add one student to a chosen lesson
     """
-    student = await get_user(db=session, login=student)
-    lesson = LessonStudents(lesson_id=lesson_id, profile_id=student.id)
+    student: User = await get_user(db=session, login=login)
+
+    if student is None:
+        raise UserNotFound()
+
+    if student.profile.profile_type is ProfileType.TEACHER:
+        raise UserTeacher()
+    
+    
+    
+    # if student.profile.profile_type 
+    
+
+    lesson = LessonStudents(lesson_id=lesson_id, user_id=student.id)
     session.add(lesson)
     await session.commit()
     return "Success"
@@ -80,13 +94,18 @@ async def fetch_all_teachers_service(
         db=session, skip=skip, limit=limit, profile_type=profile_type
     )
 
+# TODO DELETE IT
+
 
 async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSession):
     """
     Returns the shedule for calendar
     """
 
-    query = select(Lesson).options(selectinload(Lesson.teacher))
+    query = select(Lesson).options(
+        selectinload(Lesson.teacher), selectinload(
+            Lesson.students).selectinload(LessonStudents.user)
+    )
     result = await session.execute(query)
     lessons = result.scalars().all()
 
@@ -97,8 +116,16 @@ async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSessio
             "lesson_type": row.type,
             "lesson_format": row.format,
             "teacher": row.teacher.name,
+            "students": [
+                {
+                    "name": student.user.profile.name,
+                    "surname": student.user.profile.surname,
+                    "login": student.user.login
+                }
+                for student in row.students
+            ],
             "color": row.color,
-            "lesson_id": row.id
+            "lesson_id": row.id,
         }
         for row in lessons
     ]
@@ -116,12 +143,12 @@ async def delete_user_service(login: str, session: AsyncSession):
     return "Успешно удален"
 
 
-async def delete_schedule_service(session: AsyncSession, lession_id:str):
+async def delete_schedule_service(session: AsyncSession, lession_id: str):
     """
     Deletes the chose schedule
     """
 
-    query = select(Lesson).where(Lesson.id==lession_id)
+    query = select(Lesson).where(Lesson.id == lession_id)
     result = await session.execute(query)
     lesson = result.scalar_one_or_none()
     await session.delete(lesson)

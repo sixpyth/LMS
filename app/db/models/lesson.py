@@ -3,7 +3,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from enums.lesson import Format, LessonType
 from sqlalchemy import UUID, ForeignKey, String, DateTime, Enum
 from app.db.models.profile import Profile
-from uuid import uuid4
 
 
 class Lesson(BaseModel):
@@ -25,8 +24,14 @@ class Lesson(BaseModel):
     teacher_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("profiles.user_id", ondelete="SET NULL"),
-        unique=False
+        unique=False,
     )
+
     teacher: Mapped["Profile"] = relationship("Profile")
 
     color: Mapped[str] = mapped_column(String(7), default="#3174ad", nullable=False)
+
+    students = relationship(
+        "LessonStudents",
+        back_populates="lesson"
+        )

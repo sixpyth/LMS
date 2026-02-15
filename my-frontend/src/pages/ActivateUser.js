@@ -6,28 +6,34 @@ const ActivateUser = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [login, setLogin] = useState("");
-  const [detail, setMessage] = useState("");
+  const [detail, setDetail] = useState("");
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
 
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (loading) return; 
+    
     try {
-      await activateUser(token, email, password, login, errors);
-      setMessage("Аккаунт успешно активирован!");
-    } catch (err) {
-      if (err.errors) {
-        setErrors(err.errors || []);
-        setMessage("");
-        // setMessage(err.detail)
-      } else if (err.detail) {
-        setMessage(err.detail);
-        setErrors([]);
-      }
+    setLoading(true);
+    const data = await activateUser(token, email, password, login);
+    setErrors([]);
+    setDetail(data.message);
+
+  } catch (err) {
+    if (err.errors) {
+      setErrors(err.errors);
+      setDetail("");
+    } else if (err.detail) {
+      setDetail(err.detail);
+      setErrors([]);
     }
-  };
+  } finally {setLoading(false)}
+};
 
   return (
     <div className={styles.container}>
@@ -62,7 +68,7 @@ const ActivateUser = () => {
         {detail && <p className={styles.message}>{detail}</p>}
 
         {errors.length > 0 && (
-          <ol style={{textAlign:"left",lineHeight:"20px",paddingTop:"2px",paddingRight:"25px",fontSize:"12px",color:"grey"}}>
+          <ol style={{textAlign:"left",lineHeight:"20px",paddingTop:"2px",paddingRight:"25px",fontWeight:"500",color:"grey", fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"}}>
             {errors.map((e, index) => (
               <li key={index}>
                 {e.detail}

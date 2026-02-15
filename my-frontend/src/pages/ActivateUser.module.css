@@ -61,6 +61,7 @@
 
 .message {
   margin-top: 15px;
-  color: rgba(94, 94, 94, 0.682);
-  font-weight:500
+  color: rgba(65, 63, 63, 0.682);
+  font-weight:500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

@@ -18,12 +18,12 @@ class AppSettings(BaseSettings):
         return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}{ssl_part}"
 
     model_config = {"env_file": ".env", "extra": "ignore"}
-    
-    #Google smtp that's responsible for sending emails
+
+    # Google smtp that's responsible for sending emails
     smtp_host: str
     smtp_port: str
     smtp_user: str
     smtp_password: str
 
-settings = AppSettings()
 
+settings = AppSettings()

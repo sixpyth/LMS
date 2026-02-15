@@ -32,3 +32,16 @@ class UserNotFound(UserError):
 
 class WrongCredentials(UserError):
     """Wrong login or password"""
+
+
+class UserAlreadyActive(UserError):
+    """User already activated profile"""
+
+
+class UserNotTeacher(UserError):
+    """User is not a teacher"""
+
+
+class UserTeacher(UserError):
+    """User can not be a teacher"""
+

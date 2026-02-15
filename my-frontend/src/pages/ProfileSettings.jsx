@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import token from "../api/update_password"
 import uploadAvatar from "../api/upload_avatar"
+import { updatePassword } from "../api/update_password";
 import { useUser } from "../userContext";
 
 export default function ProfileSettingsPage() {
@@ -8,9 +9,9 @@ export default function ProfileSettingsPage() {
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [current_password, setCurrentPassword] = useState("");
+  const [new_password, setNewPassword] = useState("");
+  const [confirm_password, setConfirmPassword] = useState("");
 
   const [status, setStatus] = useState({ type: "", message: "" }); 
 
@@ -124,7 +125,7 @@ export default function ProfileSettingsPage() {
         background: "#fff",
         color: "#111",
       },
-      hint: { marginTop: 6, fontSize: 12, color: "#444" },
+      hint: { marginTop: 6, fontSize: 13, color: "#444", paddingLeft: "1px" },
       divider: {
         height: 2,
         background: "#111",
@@ -147,43 +148,97 @@ export default function ProfileSettingsPage() {
     []
   );
 
-  function setFileAndPreview(file) {
-    setAvatarFile(file || null);
 
-    if (!file) {
-      setAvatarPreview("");
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setAvatarPreview(url);
+function validatePasswordForm() {
+  if (!current_password || !new_password || !confirm_password) {
+    return "Заполни все поля пароля.";
+  }
+  if (new_password.length < 8) {
+    return "Новый пароль должен быть минимум 8 символов.";
+  }
+  if (new_password !== confirm_password) {
+    return "Новый пароль и подтверждение не совпадают.";
+  }
+  if (new_password === current_password) {
+    return "Новый пароль не должен совпадать со старым.";
+  }
+  return "";
+}
+
+async function ChangePassword(e) {
+  e.preventDefault();
+const err = validatePasswordForm()
+if (err) {
+  setStatus({type:"error",message:err})
+  return
+}
+
+try{
+    setStatus({ type: "info", message: "Загрузка..." });
+    await new Promise((r) => setTimeout(r, 700));
+  
+  const result = await updatePassword(
+    current_password,
+    new_password,
+    confirm_password
+  )
+
+  setCurrentPassword("");
+  setNewPassword("");
+  setConfirmPassword("");
+
+  setStatus({type:"success", message:"Пароль успешно изменен"});
+
+} 
+catch (err) {
+  const message = Array.isArray(err.detail)
+    ? err.detail.map(e => e.msg).join(", ")
+    : err.detail || "Ошибка при смене пароля";
+
+  setStatus({
+    type: "error",
+    message
+  });
+}
+}
+
+function setFileAndPreview(file) {
+  setAvatarFile(file || null);
+
+  if (!file) {
+    setAvatarPreview("");
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  setAvatarPreview(url);
+}
+
+function onPickAvatar() {
+  fileRef.current?.click();
+}
+
+function onAvatarChange(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+
+  const okTypes = ["image/png", "image/jpeg", "image/webp"];
+  if (!okTypes.includes(file.type)) {
+    setStatus({ type: "error", message: "Поддерживаются PNG / JPG / WEBP." });
+    e.target.value = "";
+    return;
   }
 
-  function onPickAvatar() {
-    fileRef.current?.click();
+  const maxBytes = 2 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    setStatus({ type: "error", message: "Файл слишком большой. До 2MB, пожалуйста." });
+    e.target.value = "";
+    return;
   }
 
-  function onAvatarChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-
-    const okTypes = ["image/png", "image/jpeg", "image/webp"];
-    if (!okTypes.includes(file.type)) {
-      setStatus({ type: "error", message: "Поддерживаются PNG / JPG / WEBP." });
-      e.target.value = "";
-      return;
-    }
-
-    const maxBytes = 2 * 1024 * 1024;
-    if (file.size > maxBytes) {
-      setStatus({ type: "error", message: "Файл слишком большой. До 2MB, пожалуйста." });
-      e.target.value = "";
-      return;
-    }
-
-    setStatus({ type: "info", message: "Аватар выбран. Нажми «Сохранить аватар»." });
-    setFileAndPreview(file);
-  }
+  setStatus({ type: "info", message: "Аватар выбран. Нажми «Сохранить аватар»." });
+  setFileAndPreview(file);
+}
 
   function onRemoveAvatar() {
     setStatus({ type: "info", message: "Аватар сброшен (локально). Сохрани, если нужно." });
@@ -214,44 +269,6 @@ export default function ProfileSettingsPage() {
     setStatus({ type: "error", message: "Не удалось сохранить аватар." });
   }
 }
-
-  function validatePasswordForm() {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      return "Заполни все поля пароля.";
-    }
-    if (newPassword.length < 8) {
-      return "Новый пароль должен быть минимум 8 символов.";
-    }
-    if (newPassword !== confirmPassword) {
-      return "Новый пароль и подтверждение не совпадают.";
-    }
-    if (newPassword === currentPassword) {
-      return "Новый пароль не должен совпадать со старым.";
-    }
-    return "";
-  }
-
-  async function onChangePassword(e) {
-    e.preventDefault();
-
-    const err = validatePasswordForm();
-    if (err) {
-      setStatus({ type: "error", message: err });
-      return;
-    }
-
-    try {
-      setStatus({ type: "info", message: "Меняю пароль… (честное слово)" });
-      await new Promise((r) => setTimeout(r, 700));
-
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setStatus({ type: "success", message: "Пароль изменён (заглушка). Подключи API и будет по-настоящему." });
-    } catch {
-      setStatus({ type: "error", message: "Не удалось изменить пароль." });
-    }
-  }
 
   const statusStyle =
     status.type === "success"
@@ -330,7 +347,7 @@ export default function ProfileSettingsPage() {
                 </div>
 
                 <p style={styles.hint}>
-                  Подключение к бэку: отправляй <b>FormData</b> на эндпоинт типа <code>/api/profile/avatar</code>.
+                  Совет: приукрась свой <b>профиль</b> новым аватаром.
                 </p>
 
                 <input
@@ -344,21 +361,20 @@ export default function ProfileSettingsPage() {
             </div>
           </section>
 
-          {/* Password card */}
           <section style={styles.card}>
             <div style={styles.cardTitleRow}>
               <h2 style={styles.cardTitle}>Смена пароля</h2>
               <span style={styles.badge}>минимум 8 символов</span>
             </div>
 
-            <form onSubmit={onChangePassword}>
+            <form onSubmit={ChangePassword}>
               <div style={{ display: "grid", gap: 12 }}>
                 <div>
                   <div style={styles.label}>Текущий пароль</div>
                   <input
                     style={styles.input}
                     type="password"
-                    value={currentPassword}
+                    value={current_password}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="••••••••"
                     autoComplete="current-password"
@@ -372,12 +388,12 @@ export default function ProfileSettingsPage() {
                   <input
                     style={styles.input}
                     type="password"
-                    value={newPassword}
+                    value={new_password}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="минимум 8 символов"
                     autoComplete="new-password"
                   />
-                  <div style={styles.hint}>Совет от машины: не ставь “12345678”.</div>
+                  <div style={styles.hint}>Совет №2: не ставь “12345678”.</div>
                 </div>
 
                 <div>
@@ -385,7 +401,7 @@ export default function ProfileSettingsPage() {
                   <input
                     style={styles.input}
                     type="password"
-                    value={confirmPassword}
+                    value={confirm_password}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="повтори новый пароль"
                     autoComplete="new-password"
@@ -417,15 +433,10 @@ export default function ProfileSettingsPage() {
                 </div>
 
                 <p style={styles.footerNote}>
-                  Подключение к бэку: отправляй JSON на эндпоинт типа <code>/api/profile/password</code>:
-                  <br />
-                  <code>{"{ currentPassword, newPassword }"}</code>
                 </p>
               </div>
             </form>
           </section>
-
-          {/* Status */}
           {status.message ? <div style={statusStyle}>{status.message}</div> : null}
         </div>
       </div>

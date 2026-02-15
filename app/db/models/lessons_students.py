@@ -1,5 +1,5 @@
 from app.db.models.base import BaseModel
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import UUID, ForeignKey
 import uuid
 
@@ -12,15 +12,19 @@ class LessonStudents(BaseModel):
         UUID(as_uuid=True),
         ForeignKey("lessons.id"),
         nullable=False,
-        unique=True,
+        unique=False,
         default=uuid.uuid4,
     )
 
     # Student's id
-    profile_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id"),
         nullable=False,
-        unique=True,
+        unique=False,
         default=uuid.uuid4,
     )
+
+    lesson = relationship("Lesson", back_populates="students")
+
+    user = relationship("User")

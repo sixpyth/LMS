@@ -31,7 +31,7 @@ from app.db.models.user import User
 from logger import logger
 
 
-async def create_teacher_service(session: AsyncSession, data)->None:
+async def create_teacher_service(session: AsyncSession, data) -> str:
 
     login = login_generator(data.name, data.surname)
 
@@ -55,7 +55,7 @@ async def create_teacher_service(session: AsyncSession, data)->None:
     return f"Учитель {profile.surname} {profile.name} был успешно добавлен!"
 
 
-async def create_student_service(session: AsyncSession, data)->None:
+async def create_student_service(session: AsyncSession, data) -> str:
 
     login = login_generator(data.name, data.surname)
 
@@ -67,24 +67,24 @@ async def create_student_service(session: AsyncSession, data)->None:
     if await is_phone_num_exists(session=session, phone=data.phone) is True:
         raise PhoneNumberExists()
 
-    for attempt in range(1,5):
+    for attempt in range(1, 5):
         try:
             user, profile = await create(db=session, login=login, profile=data)
             await session.commit()
         except IntegrityError as e:
             logger.error(e)
             await session.rollback()
-            new_login = login_generator(name=data.name,surname=data.surname)
-            new_login+=str(attempt)
+            new_login = login_generator(name=data.name, surname=data.surname)
+            new_login += str(attempt)
             login = new_login
-            continue    
-           
+            continue
+
         return f"Студент {profile.surname} {profile.name} был успешно добавлен!"
 
 
 async def log_in_user_service(
     data: OAuth2PasswordRequestForm, session: AsyncSession
-) -> tuple[str,str]:
+) -> tuple[str, str]:
     result = await session.execute(
         select(User)
         .options(joinedload(User.profile))
@@ -111,13 +111,13 @@ async def update_user_password_service(
     session: AsyncSession,
     current_password: str,
     new_password: str,
-    confirm_new_password: str,
-)->None:
+    confirm_password: str,
+) -> str:
     user_login = data.login
     user: User = await get_user(db=session, login=user_login)
     if not verify_password(password=current_password, hashed=user.password_hash):
         raise WrongCredentials()
-    if new_password != confirm_new_password:
+    if new_password != confirm_password:
         raise PasswordsNotMatch()
     if new_password == current_password:
         raise PasswordAlreadyExists()

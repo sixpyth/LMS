@@ -21,8 +21,6 @@
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-
-
 .roleBadge {
   padding: 6px 14px;
   border-radius: 20px;
@@ -41,15 +39,14 @@
   color: white;
 }
 
-
 .scheduleContainer {
   width: 90%;
   height: 90vh;
   margin: 0 auto;
   border-radius: 14px;
-  border: 2px solid black;
+  border: 2px solid rgba(63, 63, 63, 0.917);
   padding: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0);
 }
 
 .rbc-calendar {
@@ -81,4 +78,115 @@
 
 .rbc-today {
   background: rgba(255, 0, 0, 0.05);
+}
+
+
+
+
+/* more info */
+.eventCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.moreBtn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.add {
+  font-size: 25px;
+  background-color: transparent;
+  border: transparent;
+  cursor: pointer;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  padding-bottom: 20px;
+}
+
+
+/* add students */
+.studentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.studentItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.studentItem:hover {
+  background: rgba(52, 152, 219, 0.08);
+}
+
+.studentItem input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.studentItem input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.add {
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #3498db;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.add:hover {
+  background: #2c80b4;
+}
+
+.add:active {
+  transform: scale(0.98);
+}
+
+.studentList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.studentList::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
 }
