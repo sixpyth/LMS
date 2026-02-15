@@ -16,7 +16,12 @@ class ProfileCreateResponse(BaseModel):
     message: str
 
 
-class UserCreateRequest(BaseModel):
+class ProfileActivateResponse(BaseModel):
+    message: str
+
+
+
+class ProfileActivateResquest(BaseModel):
     email: EmailStr = Field(
         "example@gmail.com", pattern=r"^[\w\.-]+@[\w\.-]+\.\w{2,4}$"
     )
@@ -25,7 +30,7 @@ class UserCreateRequest(BaseModel):
 
 
 class UserCreateResponse(BaseModel):
-    message: object | None
+    message: str | None
 
 
 class UserLoginRequest(BaseModel):
@@ -52,7 +57,7 @@ class UserLoginResponse(BaseModel):
 class UpdatePasswordRequest(BaseModel):
     current_password: str
     new_password: str
-    confirm_new_password: str
+    confirm_password: str
 
 
 class UpdatePasswordResponse(BaseModel):

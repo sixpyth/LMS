@@ -14,8 +14,7 @@ from app.schemas.manager_schemas import (
     GetTeachersResponse,
 )
 from app.services.manager_service import (
-    #TODO remove services
-    add_student_to_lesson_service,
+    # TODO remove services
     fetch_all_schedule_service,
 )
 
@@ -25,6 +24,7 @@ from app.view.manager_view import (
     add_schedule_view,
     delete_user_view,
     delete_schedule_view,
+    add_student_to_lesson_view,
 )
 
 from sqlalchemy.orm import selectinload
@@ -60,7 +60,7 @@ async def add_schedule(
         teacher_login=request.teacher_login,
         format=request.format,
         type=request.type,
-        color=request.color
+        color=request.color,
     )
     return result
 
@@ -70,8 +70,8 @@ async def add_student_to_lesson(
     request: AddStudentToLessonRequest, session: AsyncSession = Depends(get_db)
 ) -> AddStudentToLessonResponse:
     """Add a student to a chosen lesson"""
-    return await add_student_to_lesson_service(
-        session=session, student=request.student_id, lesson_id=request.lesson_id
+    return await add_student_to_lesson_view(
+        session=session, login=request.login, lesson_id=request.lesson_id
     )
 
 
@@ -82,6 +82,7 @@ async def get_user(login, session: AsyncSession = Depends(get_db)):
     result = await session.execute(role)
     user = result.scalar_one_or_none()
     return user
+
 
 @api_router.get("/get-students", response_model=GetStudentsResponse)
 async def get_students(
@@ -124,6 +125,7 @@ async def delete_user(login: str, session: AsyncSession = Depends(get_db)):
     """Delets a chosen user by login"""
     return await delete_user_view(login=login, session=session)
 
+
 @api_router.delete("/delete-schedule")
-async def delete_schedule(lesson_id: str,session: AsyncSession=Depends(get_db)):
+async def delete_schedule(lesson_id: str, session: AsyncSession = Depends(get_db)):
     return await delete_schedule_view(lession_id=lesson_id, session=session)

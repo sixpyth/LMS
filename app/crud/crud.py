@@ -64,7 +64,7 @@ async def get_profiles(
             "surname": row.surname,
             "profile_type": row.profile_type,
             "status": row.status,
-            "login":row.login
+            "login": row.login,
         }
         for row in result.all()
     ]

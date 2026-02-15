@@ -29,9 +29,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def create_student_view(session: AsyncSession, data):
     try:
-        await create_student_service(session=session, data=data)
+        result = await create_student_service(session=session, data=data)
         return UserCreateResponse(
-            message=f"Студент {data.surname} {data.name} был успешно добавлен!"
+            message=result
         )
 
     except PhoneNumberExists:
@@ -90,6 +90,9 @@ async def create_teacher_view(session: AsyncSession, data):
             status_code=status.HTTP_400_BAD_REQUEST, content={"errors": e.errors}
         )
 
+    except Exception as error:
+        logger.error(error)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Неизвестная ошибка, пожалуйста, попробуйте позже")
 
 async def log_in_user_view(data, session: AsyncSession) -> UserLoginResponse:
 
@@ -119,7 +122,7 @@ async def log_in_user_view(data, session: AsyncSession) -> UserLoginResponse:
 
 
 async def update_user_password_view(
-    data, session, current_password: str, new_password: str, confirm_new_password: str
+    data, session, current_password: str, new_password: str, confirm_password: str
 ):
     try:
         return await update_user_password_service(
@@ -127,13 +130,15 @@ async def update_user_password_view(
             session=session,
             current_password=current_password,
             new_password=new_password,
-            confirm_new_password=confirm_new_password,
+            confirm_password=confirm_password,
         )
-    except WrongCredentials:
+    except WrongCredentials as errors:
+        logger.error(msg=errors)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный текущий пароль"
         )
-    except PasswordsNotMatch:
+    except PasswordsNotMatch as errors:
+        logger.error(msg=errors)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Пароли не совпадают"
         )
@@ -143,11 +148,13 @@ async def update_user_password_view(
             detail="Новый пароль не может совпадать со старым",
         )
     except WrongPasswordInput as errors:
+        logger.error(msg=errors)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=errors.errors
         )
-    except Exception as e:
-        logger.error(msg=e)
+    
+    except Exception as errors:
+        logger.error(msg=errors)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Неизвестная ошибка, пожалуйста, попробуйте позже",

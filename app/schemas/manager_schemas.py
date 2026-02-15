@@ -22,7 +22,7 @@ class AddStudentToLessonResponse(BaseModel):
 
 
 class AddStudentToLessonRequest(BaseModel):
-    student_id: UUID4
+    login: str
     lesson_id: UUID4
 
 

@@ -1,4 +1,4 @@
-def email_template()->tuple[str,str,str]:
+def email_template() -> tuple[str, str, str]:
     subject = "Ура, вы только что активировали аккаунт!"
 
     text = """
