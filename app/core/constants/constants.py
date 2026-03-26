@@ -9,4 +9,4 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # oauth2_scheme =
 
 # profile service
-MAX_AVATAR_SIZE = 2 * 1024 * 1024  # -> 2mb
+MAX_AVATAR_SIZE = 5 * 1024 * 1024  # -> 5mb

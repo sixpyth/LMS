@@ -45,3 +45,6 @@ class UserNotTeacher(UserError):
 class UserTeacher(UserError):
     """User can not be a teacher"""
 
+
+class CyrillicInPersonalInfo(UserError):
+    """Name and Surname contain cyrillic letters"""

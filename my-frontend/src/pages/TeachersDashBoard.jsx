@@ -76,9 +76,9 @@ export default function StudyDashboard() {
               fontSize: "1.2rem"
             }}
           >
-            {user?.avatar_url ? (
+            {user?.avatar ? (
               <img
-                src={user.avatar_url}
+                src={user.avatar}
                 alt="avatar"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />

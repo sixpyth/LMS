@@ -20,5 +20,5 @@ export default async function uploadAvatar(file) {
 
   const data = await res.json();
 
-  return data.avatar;
+  return data.avatar_url;
 }

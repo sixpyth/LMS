@@ -17,6 +17,9 @@ class AppSettings(BaseSettings):
         ssl_part = "?sslmode=require" if self.prod else ""
         return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}{ssl_part}"
 
+
+    #TODO add redis
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
     # Google smtp that's responsible for sending emails

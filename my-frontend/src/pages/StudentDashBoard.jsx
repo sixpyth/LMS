@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../userContext";
 import { useContext } from "react";
-
+import { LineChart, Line, XAxis, YAxis, Tooltip, Pie, PieChart, Cell } from "recharts"
 
 export default function StudyDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -13,6 +13,23 @@ export default function StudyDashboard() {
   const { user } = useUser();
   const navigate = useNavigate();
 
+ 
+  const COLORS = ["#f74f4f", "#2ff6c4", "#4f6ef7", "#f7d74f","#4f76f7bc","rgba(255, 107, 1, 0.73)"];
+ 
+  const data = [
+  { month: "2026-01", created: 61, done: 27 },
+  { month: "2026-02", created: 80, done: 55 },
+];
+
+  const dataPie = [
+    {name:"Kirill", value: 10},
+    {name:"Madina", value:32},
+    {name:"Sergey", value:30},
+    {name:"Sergey", value:30},
+    {name:"Sergey", value:30},
+    {name:"Sergey", value:30},
+    
+  ]
 
   const handleLogout = () => {
   localStorage.removeItem("user");
@@ -57,6 +74,15 @@ export default function StudyDashboard() {
       setMessage(err.response?.data?.detail || "Ошибка при загрузке аватарки");
     }
   };
+
+//   <LineChart width={600} height={300} data={data}>
+//   <XAxis dataKey="month" />
+//   <YAxis />
+//   <Tooltip />
+//   <Line type="monotone" dataKey="created" stroke="#4f6ef7" />
+//   <Line type="monotone" dataKey="done" stroke="green" />
+// </LineChart>
+
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'white', color: 'black', fontFamily: 'sans-serif' }}>
@@ -105,9 +131,9 @@ export default function StudyDashboard() {
     color: 'white'
   }}
 >
-  {user?.avatar_url ? (
+  {user?.avatar ? (
   <img
-    src={user.avatar_url}
+    src={user.avatar}
     alt="avatar"
     style={{ width: "100%", height: "100%", objectFit: "cover" }}
   />
@@ -121,11 +147,38 @@ export default function StudyDashboard() {
         <div style={{ flex: 1, padding: '1rem' }}>
           <p>Добро пожаловать, {user?.name}!</p>
           {message && <p>{message}</p>}
+
+  {/* выполненные quilzet/аудио */}
+  <LineChart width={600} height={300} data={data}>
+  <XAxis dataKey="month" />
+  <YAxis />
+  <Tooltip />
+  <Line type="monotone" dataKey="created" stroke="#fa3c1a" />
+  <Line type="monotone" dataKey="done" stroke="green" />
+  </LineChart>
+
+    <PieChart width={400} height={300} data={dataPie}>
+      <Pie
+        stroke="#3d3d3d00"
+        dataKey="value" 
+        nameKey="name"
+        outerRadius={100}
+        innerRadius={50}
+      >
+       {dataPie.map((entry, index) => (
+      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+    ))}
+    </Pie>
+
+      <Tooltip/>
+    </PieChart>
+
         </div>
       </main>
     </div>
   );
 }
+
 
 const largeButtonStyle = {
   background: '#ffffff',

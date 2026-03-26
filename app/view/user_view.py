@@ -6,14 +6,22 @@ from app.services.user_service import (
     update_user_password_service,
 )
 
-from app.schemas.user_schemas import UserLoginResponse, UserIn, UserCreateResponse
+from app.schemas.user_schemas import (
+    UserLoginResponse, 
+    UserIn, 
+    UserCreateResponse, 
+    UpdatePasswordResponse
+)
+
 from app.errors.user_errors import (
     UserAlreadyExists,
     PhoneNumberExists,
     WrongInfoInput,
     UserNotFound,
     WrongCredentials,
+    CyrillicInPersonalInfo
 )
+
 from app.errors.password_errors import (
     NoPasswordFound,
     PasswordsNotMatch,
@@ -58,7 +66,9 @@ async def create_student_view(session: AsyncSession, data):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"errors": e.errors}
         )
-
+    
+    except CyrillicInPersonalInfo as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Имя или фамилия не могут содержать кириллицу")
 
 async def create_teacher_view(session: AsyncSession, data):
     try:
@@ -94,6 +104,10 @@ async def create_teacher_view(session: AsyncSession, data):
         logger.error(error)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Неизвестная ошибка, пожалуйста, попробуйте позже")
 
+    except CyrillicInPersonalInfo as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Имя или фамилия не могут содержать кириллицу")
+
+
 async def log_in_user_view(data, session: AsyncSession) -> UserLoginResponse:
 
     try:
@@ -119,19 +133,20 @@ async def log_in_user_view(data, session: AsyncSession) -> UserLoginResponse:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Неизвестная ошибка, пожалуйста, попробуйте позже",
         )
-
+    
 
 async def update_user_password_view(
     data, session, current_password: str, new_password: str, confirm_password: str
 ):
     try:
-        return await update_user_password_service(
+        result = await update_user_password_service(
             data=data,
             session=session,
             current_password=current_password,
             new_password=new_password,
             confirm_password=confirm_password,
         )
+        return UpdatePasswordResponse(message=result)
     except WrongCredentials as errors:
         logger.error(msg=errors)
         raise HTTPException(

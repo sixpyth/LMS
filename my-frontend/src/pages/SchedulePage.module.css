@@ -79,9 +79,41 @@
 .rbc-today {
   background: rgba(255, 0, 0, 0.05);
 }
+/* 
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  margin-left: 200px;
+}
 
+.modalWindow {
+  background: rgb(255, 255, 255);
+  padding: 24px;
+  border-radius: 12px;
+  width: 400px;
+} */
 
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.modalWindow {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
 
 /* more info */
 .eventCard {
@@ -165,17 +197,19 @@
 .add {
   margin-top: 12px;
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: none;
-  background: #3498db;
-  color: white;
-  font-weight: 500;
+  background: #cf2b2b;
+  color: rgb(255, 255, 255);
+  font-weight:100;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
+  font-family: sans-serif;
+  font-size: 18px;
 }
 
 .add:hover {
-  background: #2c80b4;
+  background: #b72929;
 }
 
 .add:active {
@@ -189,4 +223,24 @@
 .studentList::-webkit-scrollbar-thumb {
   background: #ccc;
   border-radius: 4px;
+}
+
+.closeBtn {
+  font-size: 14px;
+  margin-top: 20px;
+  margin-left: 210px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #252525;
+  color: rgb(255, 255, 255);
+  font-weight:100;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  font-family: sans-serif;
+    
+}
+
+.dropdownHeader {
+  color: rgb(48, 48, 48);
 }

@@ -3,6 +3,7 @@ import token from "../api/update_password"
 import uploadAvatar from "../api/upload_avatar"
 import { updatePassword } from "../api/update_password";
 import { useUser } from "../userContext";
+import { getAvatarUrl } from "../api/getProfilePicture";
 
 export default function ProfileSettingsPage() {
   const fileRef = useRef(null);
@@ -151,7 +152,7 @@ export default function ProfileSettingsPage() {
 
 function validatePasswordForm() {
   if (!current_password || !new_password || !confirm_password) {
-    return "Заполни все поля пароля.";
+    return "Заполните все поля пароля.";
   }
   if (new_password.length < 8) {
     return "Новый пароль должен быть минимум 8 символов.";
@@ -191,9 +192,19 @@ try{
 
 } 
 catch (err) {
-  const message = Array.isArray(err.detail)
-    ? err.detail.map(e => e.msg).join(", ")
-    : err.detail || "Ошибка при смене пароля";
+  console.log("ERR FULL:", err);
+
+  let message = "Ошибка при смене пароля";
+
+  if (Array.isArray(err?.detail)) {
+    message = err.detail
+      .map(e => e.detail || JSON.stringify(e))
+      .join(". ");
+  } else if (err?.detail) {
+    message = err.detail;
+  } else if (err?.message) {
+    message = err.message;
+  }
 
   setStatus({
     type: "error",
@@ -246,7 +257,7 @@ function onAvatarChange(e) {
     if (fileRef.current) fileRef.current.value = "";
   }
 
- async function onSaveAvatar() {
+async function onSaveAvatar() {
   if (!avatarFile) {
     setStatus({ type: "error", message: "Сначала выбери файл аватара." });
     return;
@@ -255,12 +266,29 @@ function onAvatarChange(e) {
   try {
     setStatus({ type: "info", message: "Загружаю аватар…" });
 
-    const avatar_url = await uploadAvatar(avatarFile);
+    const avatar_key = await uploadAvatar(avatarFile);
+
+    console.log("KEY:", avatar_key);
+
+    const avatar = await getAvatarUrl(avatar_key);
+
+    console.log("URL:", avatar);
 
     setUser(prev => ({
       ...prev,
-      avatar_url: avatar_url
+      avatar_key,
+      avatar,
     }));
+    
+    const stored = JSON.parse(localStorage.getItem("user") || "{}");
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        ...stored,
+        avatar_url: avatar_key,
+      })
+    );
 
     setStatus({ type: "success", message: "Аватар сохранён." });
 
@@ -269,7 +297,6 @@ function onAvatarChange(e) {
     setStatus({ type: "error", message: "Не удалось сохранить аватар." });
   }
 }
-
   const statusStyle =
     status.type === "success"
       ? { ...styles.status, ...styles.statusSuccess }
@@ -299,9 +326,9 @@ function onAvatarChange(e) {
 
             <div style={styles.row}>
               <div style={styles.avatarWrap}>
-  {user?.avatar_url ? (
+  {user?.avatar ? (
     <img
-      src={user.avatar_url}
+      src={user.avatar}
       style={styles.avatarImg}
     />
   ) : avatarPreview ? (

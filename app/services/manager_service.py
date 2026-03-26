@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, UUID, select
+from sqlalchemy import DateTime, UUID, select, Date, Time
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models.lesson import Lesson
 from app.db.models.lessons_students import LessonStudents
@@ -8,19 +8,25 @@ from sqlalchemy.orm import selectinload
 from app.errors.user_errors import UserNotFound
 from sqlalchemy.exc import NoResultFound
 from app.db.models.user import User
+from app.db.models.day import Days
 from enums.profile_type import ProfileType
 from app.errors.user_errors import (
-    UserNotTeacher, 
+    UserNotTeacher,
     UserTeacher,
 )
+
+
 async def add_schedule_service(
     session: AsyncSession,
-    start: DateTime,
-    finish: DateTime,
+    start_time: Time,
+    finish_time: Time,
     teacher_login: str,
     format: Format,
     type: LessonType,
     color: str | None,
+    days: list[int],
+    start_date: Date,
+    finish_date: Date,
 ):
     """
     Function creates schedule with the chosen teacher/format/type
@@ -33,15 +39,22 @@ async def add_schedule_service(
     if user is None:
         raise UserNotFound
     teacher_id = user.id
+
+    # add all days from the list in the database
     lesson = Lesson(
-        start_time=start,
-        finish_time=finish,
+        start_time=start_time,
+        finish_time=finish_time,
         teacher_id=teacher_id,
         type=type,
         format=format,
         color=color,
+        start_date=start_date,
+        finish_date=finish_date
     )
     session.add(lesson)
+    for day in days:
+        session.add(Days(days=day, lesson=lesson))
+    await session.flush()
     await session.commit()
     return user.profile.surname
 
@@ -59,11 +72,6 @@ async def add_student_to_lesson_service(
 
     if student.profile.profile_type is ProfileType.TEACHER:
         raise UserTeacher()
-    
-    
-    
-    # if student.profile.profile_type 
-    
 
     lesson = LessonStudents(lesson_id=lesson_id, user_id=student.id)
     session.add(lesson)
@@ -94,8 +102,6 @@ async def fetch_all_teachers_service(
         db=session, skip=skip, limit=limit, profile_type=profile_type
     )
 
-# TODO DELETE IT
-
 
 async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSession):
     """
@@ -104,15 +110,17 @@ async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSessio
 
     query = select(Lesson).options(
         selectinload(Lesson.teacher), selectinload(
-            Lesson.students).selectinload(LessonStudents.user)
+            Lesson.students).selectinload(LessonStudents.user), selectinload(Lesson.days), selectinload(Lesson.days)
     )
     result = await session.execute(query)
     lessons = result.scalars().all()
 
     profiles = [
         {
-            "start": row.start_time,
-            "finish": row.finish_time,
+            "start_time": row.start_time,
+            "finish_time": row.finish_time,
+            "start_date": row.start_date,
+            "finish_date": row.finish_date,
             "lesson_type": row.type,
             "lesson_format": row.format,
             "teacher": row.teacher.name,
@@ -120,9 +128,15 @@ async def fetch_all_schedule_service(skip: int, limit: int, session: AsyncSessio
                 {
                     "name": student.user.profile.name,
                     "surname": student.user.profile.surname,
-                    "login": student.user.login
+                    "login": student.user.login,
                 }
                 for student in row.students
+            ],
+            "days": [
+                {
+                    "day": day.days
+                }
+                for day in row.days
             ],
             "color": row.color,
             "lesson_id": row.id,

@@ -14,6 +14,8 @@ from app.schemas.user_schemas import (
     ProfileCreateErrors,
     UpdatePasswordRequest,
     UpdatePasswordResponse,
+    UserLoginRequest,
+    UserLoginResponse
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -39,16 +41,16 @@ async def create_teacher(
     return result
 
 
-# @api_router.post("/login/user", response_model=UserLoginResponse)
-# async def user_login(
-#     request: UserLoginRequest, session: AsyncSession = Depends(get_db)
-# ) -> UserLoginResponse:
-#     result = await log_in_user_view(data=request, session=session)
-#     return {
-#         "access_token": result.access_token,
-#         "token_type": result.token_type,
-#         "user": result.user,
-#     }
+@api_router.post("/login/user", response_model=UserLoginResponse)
+async def user_login(
+    request: UserLoginRequest, session: AsyncSession = Depends(get_db)
+) -> UserLoginResponse:
+    result = await log_in_user_view(data=request, session=session)
+    return {
+        "access_token": result.access_token,
+        "token_type": result.token_type,
+        "user": result.user,
+    }
 
 
 @api_router.patch("/update-password", response_model=UpdatePasswordResponse)
@@ -67,8 +69,8 @@ async def user_password_update(
     return result
 
 
-@api_router.post("/login/user")
-async def login(
-    form: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_db)
-):
-    return await log_in_user_view(form, session)
+# @api_router.post("/login/user")
+# async def login(
+#     form: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_db)
+# ):
+#     return await log_in_user_view(form, session)

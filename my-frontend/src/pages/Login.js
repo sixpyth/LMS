@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { loginUser } from "../api/login";
 import styles from "./Login.module.css"; 
 import { useNavigate } from "react-router-dom";
-import { nav } from "framer-motion/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const Login = () => {
       const user = await loginUser(username, password);
       if (user.profile_type == "TEACHER") navigate("/teacher")
       else if (user.profile_type == "STUDENT") navigate ("/student")
-      else if (user.profile_type == "MANAGER") navigate ("/manager")
+      else if (user.profile_type == "ADMIN") navigate ("/manager")
     
     } catch (err) {
       setMessage(err.message || "Ошибка при входе");
