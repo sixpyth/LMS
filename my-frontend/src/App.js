@@ -17,6 +17,7 @@ import TeacherDashBoard from "./pages/TeachersDashBoard"
 import { UserProvider } from "./userContext";
 import { useUser } from "./userContext";
 import getProfile from "./api/get_profile";
+import { getAvatarUrl } from "./api/getProfilePicture";
 
 
 
@@ -40,11 +41,25 @@ function AppLayout() {
   const { setUser } = useUser();
 
 useEffect(() => {
-  getProfile()
-    .then(setUser)
-    .catch(err => {
+  const init = async () => {
+    try {
+      const profile = await getProfile();
+
+      const avatar = await getAvatarUrl(profile.avatar_url);
+      
+      setUser({
+        name: profile.name,
+        avatar_key: profile.avatar_url,
+        avatar,
+      });
+      console.log("URL",avatar);
+      
+    } catch (err) {
       console.error("Profile load failed:", err);
-    });
+    }
+  };
+
+  init();
 }, []);
   return (
     <div className="home-container">

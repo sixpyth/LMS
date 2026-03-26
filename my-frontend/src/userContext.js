@@ -4,7 +4,8 @@ const UserContext = createContext(null);
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState({
-    avatar_url: null,
+    avatar_key: null,
+    avatar: null,
     name: null,
   });
 

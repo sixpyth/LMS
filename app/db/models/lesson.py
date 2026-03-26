@@ -1,8 +1,9 @@
 from app.db.models.base import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from enums.lesson import Format, LessonType
-from sqlalchemy import UUID, ForeignKey, String, DateTime, Enum
+from sqlalchemy import UUID, ForeignKey, String, DateTime, Enum, Time, Date
 from app.db.models.profile import Profile
+from enums.week_days import WeekDays
 
 
 class Lesson(BaseModel):
@@ -10,9 +11,9 @@ class Lesson(BaseModel):
 
     __tablename__ = "lessons"
 
-    start_time: Mapped[DateTime] = mapped_column(DateTime(timezone=True))
+    start_time: Mapped[DateTime] = mapped_column(Time(timezone=True))
 
-    finish_time: Mapped[DateTime] = mapped_column(DateTime(timezone=True))
+    finish_time: Mapped[DateTime] = mapped_column(Time(timezone=True))
 
     type: Mapped[Enum] = mapped_column(Enum(LessonType), nullable=False)
 
@@ -29,9 +30,23 @@ class Lesson(BaseModel):
 
     teacher: Mapped["Profile"] = relationship("Profile")
 
-    color: Mapped[str] = mapped_column(String(7), default="#3174ad", nullable=False)
+    color: Mapped[str] = mapped_column(
+        String(7), default="#3174ad", nullable=False)
+
+    days = relationship(
+        "Days",
+        back_populates="lesson"
+    )
+
+    start_date: Mapped[DateTime] = mapped_column(
+        Date, nullable=False
+    )
+
+    finish_date: Mapped[DateTime] = mapped_column(
+        Date, nullable=False
+    )
 
     students = relationship(
         "LessonStudents",
         back_populates="lesson"
-        )
+    )

@@ -7,13 +7,14 @@ import fetch_teachers from "../api/fetch_teachers";
 import { add_schedule } from "../api/add_schedule";
 import ColorPicker from "../СolorPicker.js"
 
+
 export default function ManagerDashboard() {
   const [studentNumber, setStudentNumber] = useState(0);
   const [teacherNumber, setTeacherNumber] = useState(0);
   // Creates lessons
   const now = new Date().toISOString().slice(0, 16);
-  const [start, setStart] = useState(now);
-  const [finish, setFinish] = useState(now);
+  const [start_time, setStart] = useState(now);
+  const [finish_time, setFinish] = useState(now);
   const [teacher, setTeacher] = useState("");
   const [format, setFormat] = useState("");
   const [type, setType] = useState("");
@@ -21,7 +22,20 @@ export default function ManagerDashboard() {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const [color, setColor] = useState("#3174ad");
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [weekdays, setWeekdays] = useState([]);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   
+  function toggleWeekday(day) {
+    setWeekdays(prev =>
+      prev.includes(day)
+        ? prev.filter(d => d !== day)
+        : [...prev, day]
+    );
+  }
 
   const fetchStudents = async () => {
     try {
@@ -41,21 +55,26 @@ export default function ManagerDashboard() {
     }
   };
 
-  const handleCreateLesson = async () => {
-    try {
-      await add_schedule({
-        start,
-        finish,
-        teacher_login: teacher,
-        format,
-        type,
-        color,
-      });
-      setShowScheduleModal(false);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+const handleCreateLesson = async () => {
+  try {
+    const payload = {
+      start_time: `${startTime}:00+00:00`,
+      finish_time: `${endTime}:00+00:00`,
+      teacher_login: teacher,
+      days: weekdays,
+      format,
+      type,
+      color,
+      start_date: startDate,
+      finish_date: endDate,
+    };
+
+    await add_schedule(payload);
+    setShowScheduleModal(false);
+  } catch (e) {
+    alert(e?.detail || "Ошибка при создании урока");
+  }
+};
 
   useEffect(() => {
     fetchStudents();
@@ -133,73 +152,93 @@ export default function ManagerDashboard() {
         </section>
 
         {showScheduleModal && (
-          <div className="modal-overlay">
-            <div className="modal-window">
-              <h2>Создать урок</h2>
+  <div className="modal-overlay">
+    <div className="modal-window">
+      <h2>Создать расписание уроков</h2>
 
-              <label>Начало урока</label>
-              <input
-                type="datetime-local"
-                value={start}
-                onChange={(e) => setStart(e.target.value)}
-              />
+      <label>Период занятий</label>
+      <div className="date-range">
+        <input
+          type="date"
+          value={startDate}
+          onChange={e => setStartDate(e.target.value)}
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={e => setEndDate(e.target.value)}
+        />
+      </div>
 
-              <label>Конец урока</label>
-              <input
-                type="datetime-local"
-                value={finish}
-                onChange={(e) => setFinish(e.target.value)}
-              />
+        <label>Дни недели</label>
+      <div className="weekdays-row">
+        {["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day, i) => (
+          <button
+            key={i}
+            type="button"
+            className={`weekday-btn ${weekdays.includes(i) ? "active" : ""}`}
+            onClick={() => toggleWeekday(i)}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
 
-              <label>Учитель (логин)</label>
-              <input
-                type="text"
-                value={teacher}
-                onChange={(e) => setTeacher(e.target.value)}
-                placeholder="ivanov123"
-              />
+      <label>Время урока</label>
+      <div className="time-range">
+        <input
+          type="time"
+          value={startTime}
+          onChange={e => setStartTime(e.target.value)}
+        />
+        <input
+          type="time"
+          value={endTime}
+          onChange={e => setEndTime(e.target.value)}
+        />
+      </div>
 
-              <label>Тип урока</label>
-              <select
-                type="text"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                <option value="">Выбери тип урока</option>
-                <option value="IELTS">IELTS</option>
-                <option value="GENERAL">General</option>
-                <option value="INTENSIVE">Интенсив</option>
-                <option value="TRIAL">Пробный</option>
-              </select>
+      <label>Учитель (логин)</label>
+      <input
+        type="text"
+        value={teacher}
+        onChange={(e) => setTeacher(e.target.value)}
+        placeholder="ivanov123"
+      />
 
-              <label>Формат урока</label>
-              <select
-                type="text"
-                value={format}
-                onChange={(e) => setFormat(e.target.value)}
-              >
-                <option value="">Выбери формат урока</option>
-                <option value="ONLINE">Онлайн</option>
-                <option value="OFFLINE">Оффлайн</option>
-              </select>
+      <label>Тип урока</label>
+      <select value={type} onChange={e => setType(e.target.value)}>
+        <option value="">Выбери тип урока</option>
+        <option value="IELTS">IELTS</option>
+        <option value="GENERAL">General</option>
+        <option value="INTENSIVE">Интенсив</option>
+        <option value="TRIAL">Пробный</option>
+      </select>
 
-             <ColorPicker color={color} setColor={setColor} />
+      <label>Формат урока</label>
+      <select value={format} onChange={e => setFormat(e.target.value)}>
+        <option value="">Выбери формат урока</option>
+        <option value="ONLINE">Онлайн</option>
+        <option value="OFFLINE">Оффлайн</option>
+      </select>
 
-              <div className="modal-actions">
-                <button
-                  className="btn-secondary"
-                  onClick={() => setShowScheduleModal(false)}
-                >
-                  Отмена
-                </button>
+      <ColorPicker color={color} setColor={setColor} />
 
-                <button className="btn-primary" onClick={handleCreateLesson}>
-                  Создать
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="modal-actions">
+        <button
+          className="btn-secondary"
+          onClick={() => setShowScheduleModal(false)}
+        >
+          Отмена
+        </button>
+
+        <button className="btn-primary" onClick={handleCreateLesson}>
+          Создать
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </main>
     </div>
   );

@@ -1,4 +1,6 @@
-from app.errors.user_errors import WrongPersonalInfoValidation
+from app.errors.user_errors import (
+    WrongPersonalInfoValidation
+)
 from app.core.constants.constants import MIN_NUMBER, MAX_NUMBER
 import string
 from app.db.models.profile import Profile
@@ -7,8 +9,9 @@ from sqlalchemy import select
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
-letters = string.ascii_letters
 
+letters = string.ascii_letters
+cyrillic = [chr(i) for i in range(0x0400, 0x0500)]
 
 async def is_email_exists(session: AsyncSession, email: EmailStr) -> bool:
     result = await session.execute(select(User).where(User.email == email))
@@ -118,3 +121,18 @@ def validate_info(name: str, surname: str, phone: str) -> bool:
         raise WrongPersonalInfoValidation(errors=errors)
 
     return True
+
+# TODO finish the func
+# async def is_latyn(name,surname):
+#     for letter in letters:
+#         if letter in name or letter in surname:
+#             return True
+#         return False
+
+
+async def is_cyrillic(name,surname):
+    letters = "".join(cyrillic)
+    for letter in letters:
+        if letter in name or letter in surname:
+            return True
+    return False

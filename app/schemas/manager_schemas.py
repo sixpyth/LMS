@@ -1,7 +1,8 @@
 from pydantic import BaseModel, UUID4, Field
 from enums.lesson import LessonType, Format
-from datetime import datetime
 from enums.profile_type import ProfileType
+from enums.week_days import WeekDays
+from datetime import time, date
 
 
 class AddScheduleResponse(BaseModel):
@@ -9,12 +10,15 @@ class AddScheduleResponse(BaseModel):
 
 
 class AddScheduleRequest(BaseModel):
-    start: datetime
-    finish: datetime
+    start_time: time
+    finish_time: time
     teacher_login: str
+    days: list[int]
     format: Format
     type: LessonType
-    color: str
+    color: str = None
+    start_date: date 
+    finish_date: date
 
 
 class AddStudentToLessonResponse(BaseModel):

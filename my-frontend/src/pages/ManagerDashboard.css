@@ -134,3 +134,28 @@ select {
   padding: 8px;
   width: 437px;
 }
+
+.weekdays-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.weekday-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f4f4f4;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.weekday-btn.active {
+  background: #d33333;
+  color: white;
+  border-color: #a1363676;
+}
+
+.weekday-btn:hover {
+  background: #e0e0e0;
+}

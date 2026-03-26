@@ -1,3 +1,4 @@
+from enums.week_days import WeekDays
 from fastapi import APIRouter, Depends, Query
 from app.db.deps import role_required, get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,12 +56,15 @@ async def add_schedule(
     """
     result = await add_schedule_view(
         session=session,
-        start=request.start,
-        finish=request.finish,
+        start_time=request.start_time,
+        finish_time=request.finish_time,
         teacher_login=request.teacher_login,
+        days=request.days,
         format=request.format,
         type=request.type,
         color=request.color,
+        start_date=request.start_date,
+        finish_date=request.finish_date
     )
     return result
 
@@ -78,7 +82,8 @@ async def add_student_to_lesson(
 @api_router.get("/get-user")
 async def get_user(login, session: AsyncSession = Depends(get_db)):
     """Returns one user"""
-    role = select(User).options(selectinload(User.profile)).where(User.login == login)
+    role = select(User).options(selectinload(
+        User.profile)).where(User.login == login)
     result = await session.execute(role)
     user = result.scalar_one_or_none()
     return user

@@ -1,6 +1,6 @@
 from logger import logger
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
+from datetime import date, time
 from enums.lesson import Format, LessonType
 from app.errors.user_errors import (
     UserNotFound,
@@ -41,23 +41,29 @@ async def fetch_all_teachers_view(
 
 
 async def add_schedule_view(
-    start: datetime,
-    finish: datetime,
+    start_time: time,
+    finish_time: time,
     teacher_login: str,
+    days:list[int],
     format: Format,
     type: LessonType,
     session: AsyncSession,
     color: str | None,
+    start_date: date,
+    finish_date: date
 ):
     try:
         return await add_schedule_service(
-            start=start,
-            finish=finish,
+            start_time=start_time,
+            finish_time=finish_time,
             teacher_login=teacher_login,
+            days=days,
             format=format,
             type=type,
             session=session,
             color=color,
+            start_date=start_date,
+            finish_date=finish_date
         )
     except UserNotFound:
         raise HTTPException(
@@ -65,7 +71,6 @@ async def add_schedule_view(
             detail="Учитель не найден, проверьте имя или фамилию",
         )
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Произошла ошибка. Пожалуйста, попробуйте позже",

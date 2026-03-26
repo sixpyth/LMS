@@ -1,4 +1,8 @@
-from app.validators.personal_info_validator import validate_info, is_phone_num_exists
+from app.validators.personal_info_validator import (
+    validate_info, 
+    is_phone_num_exists, 
+    is_cyrillic
+)
 from app.validators.password_validator import password_validator
 from enums.profile_type import ProfileType
 from fastapi.security import OAuth2PasswordRequestForm
@@ -11,6 +15,7 @@ from app.errors.user_errors import (
     WrongPersonalInfoValidation,
     UserNotFound,
     WrongCredentials,
+    CyrillicInPersonalInfo
 )
 from app.errors.password_errors import (
     NoPasswordFound,
@@ -42,6 +47,9 @@ async def create_teacher_service(session: AsyncSession, data) -> str:
 
     if await is_phone_num_exists(session=session, phone=data.phone):
         raise PhoneNumberExists()
+    
+    if await is_cyrillic(data.name, data.surname) is True:
+        raise CyrillicInPersonalInfo()
 
     try:
         user, profile = await create(db=session, login=login, profile=data)
@@ -63,6 +71,10 @@ async def create_student_service(session: AsyncSession, data) -> str:
         validate_info(data.name, data.surname, data.phone)
     except WrongPersonalInfoValidation as e:
         raise WrongInfoInput(errors=e.errors)
+    
+    if await is_cyrillic(data.name, data.surname) is True:
+        raise CyrillicInPersonalInfo()
+
 
     if await is_phone_num_exists(session=session, phone=data.phone) is True:
         raise PhoneNumberExists()
@@ -122,10 +134,12 @@ async def update_user_password_service(
     if new_password == current_password:
         raise PasswordAlreadyExists()
     try:
-        password_validator(new_password)
+        await password_validator(new_password)
     except WrongPasswordValidation as errors:
         raise WrongPasswordInput(errors=errors.errors)
     hashed_password = hash_password(new_password)
     user.password_hash = hashed_password
     await session.commit()
-    return "Пароль был успешно обновлен"
+    message = "Пароль был успешно обновлен"
+
+    return "message"
